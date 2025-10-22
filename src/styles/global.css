@@ -1,0 +1,10 @@
+/* [08] src/styles/global.css */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root { color-scheme: light; }
+html, body, #root { height: 100%; }
+body { @apply bg-white text-udo-ink antialiased; }
+.container-narrow { @apply container mx-auto max-w-screen-lg px-4; }
+.card { @apply bg-white/80 backdrop-blur shadow-soft rounded-2xl; }
