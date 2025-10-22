@@ -15,4 +15,7 @@ export default function Dashboard() {
       <Tile title="Sign" to="/sign" desc="Request signatures from people" />
       <Tile title="Vote" to="/vote" desc="Create a voting list or import CSV/XLSX" />
       <Tile title="Trace" to="/trace" desc="Check integrity and storage states" />
-    </
+    </div>
+  );
+}
+
