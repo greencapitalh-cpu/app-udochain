@@ -1,4 +1,4 @@
-// [11] src/router/index.tsx
+// [11] src/router/index.tsx — versión corregida y verificada
 import { createBrowserRouter } from "react-router-dom";
 import RootLayout from "../shared/RootLayout";
 import Home from "../pages/Home";
