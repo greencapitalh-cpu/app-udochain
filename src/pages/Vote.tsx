@@ -13,4 +13,8 @@ export default function Vote() {
       <div className="card p-6">
         <h3 className="font-semibold mb-2">Create or import a voting list</h3>
         <FileDropzone onFiles={setList} accept=".csv, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/vnd.ms-excel" multiple={false} />
-        <Button className="mt-3" onClick={uploadList} disabled={list.length === 0}>Up
+        <Button className="mt-3" onClick={uploadList} disabled={list.length === 0}>Upload & Invite</Button>
+      </div>
+    </div>
+  );
+}
