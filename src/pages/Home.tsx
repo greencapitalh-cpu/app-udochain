@@ -1,4 +1,4 @@
-// [23] src/pages/Home.tsx
+// [04] src/pages/Home.tsx
 import React from "react";
 import { Link } from "react-router-dom";
 
@@ -12,15 +12,14 @@ const Home: React.FC = () => {
       />
       <h1 className="text-3xl font-bold mb-4">Welcome to UDoChain</h1>
       <p className="text-center max-w-md mb-6">
-        The easiest way to validate, sign, trace, and vote with blockchain-level
-        security. One platform — full control.
+        Validate, sign, trace, and vote with blockchain-level security — all in one simple platform.
       </p>
 
-      <ul className="text-left mb-6 list-disc pl-6">
-        <li>Validate your documents with biometric proof</li>
+      <ul className="text-left mb-6 list-disc pl-6 space-y-2">
+        <li>Validate your documents with biometric verification</li>
         <li>Create and manage voting lists</li>
-        <li>Invite participants to sign and vote</li>
-        <li>Trace processes in real time</li>
+        <li>Invite others to sign or vote securely</li>
+        <li>Trace processes with full transparency</li>
       </ul>
 
       <div className="flex space-x-4">
