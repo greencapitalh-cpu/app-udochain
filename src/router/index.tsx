@@ -1,4 +1,4 @@
-// [11] src/router/index.tsx — versión depurada y verificada línea por línea
+// src/router/index.tsx
 import { createBrowserRouter } from "react-router-dom";
 import RootLayout from "../shared/RootLayout";
 import Home from "../pages/Home";
@@ -33,9 +33,8 @@ const router = createBrowserRouter([
       { path: "settings", element: <Settings /> },
       { path: "legal", element: <Legal /> },
       { path: "*", element: <NotFound /> },
-      { path: "verify/:code", element: <Verify /> }
-    ]
-  }
+    ],
+  },
 ]);
 
 export default router;
