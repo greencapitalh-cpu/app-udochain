@@ -32,7 +32,8 @@ const router = createBrowserRouter([
       { path: "payments", element: <Payments /> },
       { path: "settings", element: <Settings /> },
       { path: "legal", element: <Legal /> },
-      { path: "*", element: <NotFound /> }
+      { path: "*", element: <NotFound /> },
+      { path: "verify/:code", element: <Verify /> }
     ]
   }
 ]);
