@@ -1,6 +1,6 @@
-// [13] src/ui/Header.tsx
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
+import logoPath from "../assets/logo-udochain.png"; // ✅ Import directo desde assets
 
 export default function Header() {
   const { pathname } = useLocation();
@@ -17,15 +17,14 @@ export default function Header() {
     ["Payments", "/payments"],
   ];
 
-  const logoPath =
-    (import.meta.env.VITE_LOGO_MAIN as string) || "/src/assets/logo-udochain.png";
-
   return (
     <header className="border-b bg-white/70 backdrop-blur sticky top-0 z-40">
       <div className="container-narrow flex items-center justify-between py-3 gap-4">
         <Link to="/" className="flex items-center gap-2">
           <img src={logoPath} alt="UDoChain" className="h-8 w-auto" />
-          <span className="font-semibold text-udo-ink hidden sm:inline">UDoChain</span>
+          <span className="font-semibold text-udo-ink hidden sm:inline">
+            UDoChain
+          </span>
         </Link>
 
         <nav className="hidden md:flex items-center gap-2">
@@ -34,7 +33,9 @@ export default function Header() {
               key={href}
               to={href}
               className={`px-3 py-1 rounded-full ${
-                pathname === href ? "bg-udo-sky text-udo-primary" : "hover:bg-slate-100"
+                pathname === href
+                  ? "bg-udo-sky text-udo-primary"
+                  : "hover:bg-slate-100"
               }`}
             >
               {label}
