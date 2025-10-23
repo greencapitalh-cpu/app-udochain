@@ -24,3 +24,24 @@ export default function Header() {
           to="/"
           className="font-bold tracking-wide text-udo-ink text-[clamp(1.1rem,2vw,1.6rem)]"
         >
+          UDoChain
+        </Link>
+        <nav className="mt-3 flex flex-wrap gap-3 text-sm">
+          {nav.map(([label, href]) => (
+            <Link
+              key={href}
+              to={href}
+              className={`px-3 py-1 rounded-full ${
+                pathname === href
+                  ? "bg-udo-sky text-udo-primary"
+                  : "hover:bg-slate-100"
+              }`}
+            >
+              {label}
+            </Link>
+          ))}
+        </nav>
+      </div>
+    </header>
+  );
+}
