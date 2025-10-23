@@ -6,13 +6,15 @@ import logo from "../assets/logo-udochain.png"; // ✅ Import correcto
 const Home: React.FC = () => {
   return (
     <div className="min-h-screen flex flex-col items-center justify-center bg-gray-50 text-gray-900 p-6">
-      {/* ✅ Logo importado desde src/assets */}
-      <img
-        src={logo}
-        alt="UDoChain Logo"
-        className="w-32 h-32 mb-6 drop-shadow-lg"
-        loading="lazy"
-      />
+      {/* ✅ Logo que respeta proporciones naturales */}
+      <div className="w-full flex justify-center mb-6">
+        <img
+          src={logo}
+          alt="UDoChain Logo"
+          className="max-h-32 w-auto object-contain drop-shadow-2xl transition-transform duration-300 hover:scale-105"
+          loading="lazy"
+        />
+      </div>
 
       <h1 className="text-3xl font-bold mb-4">Welcome to UDoChain</h1>
       <p className="text-center max-w-md mb-6 text-gray-600">
