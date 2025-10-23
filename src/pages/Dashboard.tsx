@@ -1,21 +1,30 @@
-// [26] src/pages/Dashboard.tsx
-import { Link } from "react-router-dom";
-
-const Tile = ({ title, to, desc }: { title: string; to: string; desc: string }) => (
-  <Link to={to} className="card p-5 hover:shadow-lg transition-all">
-    <h3 className="text-lg font-semibold">{title}</h3>
-    <p className="text-sm text-udo-steel">{desc}</p>
-  </Link>
-);
+import { useAuth } from "../context/AuthContext";
+import Button from "../ui/Button";
 
 export default function Dashboard() {
+  const { user, logout } = useAuth();
+
   return (
-    <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
-      <Tile title="Validate" to="/validate" desc="Upload any file and fingerprint" />
-      <Tile title="Sign" to="/sign" desc="Request signatures from people" />
-      <Tile title="Vote" to="/vote" desc="Create a voting list or import CSV/XLSX" />
-      <Tile title="Trace" to="/trace" desc="Check integrity and storage states" />
+    <div className="max-w-3xl mx-auto card p-6">
+      <h1 className="text-2xl font-semibold mb-4">Welcome to your Dashboard</h1>
+
+      {user ? (
+        <>
+          <p className="text-udo-steel mb-3">
+            <strong>Name:</strong> {user.name || "—"}
+          </p>
+          <p className="text-udo-steel mb-3">
+            <strong>Email:</strong> {user.email || "—"}
+          </p>
+          <p className="text-udo-steel mb-6">
+            <strong>Credits:</strong> {user.credits ?? 0}
+          </p>
+
+          <Button onClick={logout}>Log out</Button>
+        </>
+      ) : (
+        <p className="text-red-600">No user data loaded.</p>
+      )}
     </div>
   );
 }
-
