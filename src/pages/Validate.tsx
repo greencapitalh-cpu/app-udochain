@@ -23,4 +23,9 @@ export default function Validate() {
           Please place your finger on the scanner when ready (placeholder).
         </p>
         <img src="/src/assets/fingerhash.png" alt="Fingerprint placeholder" className="h-24 mx-auto mb-4" />
-        <Button onClick={submit} disabled={files
+        <Button onClick={submit} disabled={files.length === 0}>Confirm & Validate</Button>
+        {confirmed && <p className="text-sm text-green-600 mt-2">Validation submitted.</p>}
+      </div>
+    </div>
+  );
+}
