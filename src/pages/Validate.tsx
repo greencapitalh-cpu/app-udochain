@@ -5,6 +5,7 @@ import CreditMeter from "../components/CreditMeter";
 import Button from "../ui/Button";
 import Loader from "../ui/Loader";
 import useApi from "../hooks/useApi";
+import fingerhash from "../assets/fingerhash.png"; // ✅ Fingerprint local en /src/assets/
 
 export default function Validate() {
   const [files, setFiles] = useState<File[]>([]);
@@ -13,9 +14,6 @@ export default function Validate() {
   const [error, setError] = useState<string | null>(null);
 
   const { postForm } = useApi();
-  const fingerprintImg =
-    (import.meta.env.VITE_FINGERPRINT_PLACEHOLDER as string) ||
-    "/src/assets/fingerhash.png";
 
   const submit = async () => {
     if (!files.length) return;
@@ -42,6 +40,7 @@ export default function Validate() {
 
   return (
     <div className="grid gap-6">
+      {/* Sección principal de archivos */}
       <div className="card p-6">
         <h2 className="text-lg font-semibold mb-3">Validate files</h2>
         <FileDropzone onFiles={(fs) => setFiles(fs)} />
@@ -52,6 +51,7 @@ export default function Validate() {
         )}
       </div>
 
+      {/* Sección biométrica */}
       <div className="card p-6 grid md:grid-cols-2 gap-6">
         <div>
           <h3 className="font-semibold mb-2">Fingerprint verification</h3>
@@ -60,19 +60,21 @@ export default function Validate() {
           </p>
           <div className="rounded-xl border bg-white p-6 grid place-items-center">
             <img
-              src={fingerprintImg}
+              src={fingerhash}
               alt="Fingerprint placeholder"
               className="h-32 w-32 object-contain opacity-80"
             />
           </div>
         </div>
 
+        {/* Botón y feedback */}
         <div className="flex flex-col justify-between">
           <div className="text-sm text-udo-steel">
             The biometric confirmation is required before submitting the
             validation. In this stage, fingerprint is a placeholder and will be
             activated when your device is supported.
           </div>
+
           <div className="mt-4">
             <Button onClick={submit} disabled={files.length === 0 || busy}>
               {busy ? "Submitting…" : "Confirm & Validate"}
@@ -81,7 +83,7 @@ export default function Validate() {
             {error && <p className="text-red-600 text-sm mt-2">{error}</p>}
             {confirmed && (
               <p className="text-green-700 text-sm mt-2">
-                Validation submitted.
+                Validation submitted successfully.
               </p>
             )}
           </div>
