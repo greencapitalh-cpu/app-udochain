@@ -1,15 +1,13 @@
-// [38] src/hooks/useUpload.ts
 import useApi from "./useApi";
 
 export default function useUpload() {
   const { base } = useApi();
 
-  const uploadAny = async (files: File[], consume = false) => {
-    const fd = new FormData();
-    files.forEach((f) => fd.append("files", f));
-    const res = await fetch(`${base}/api/upload/any?consume=${consume}`, {
+  const uploadAny = async (formData: FormData, consume = false, gps = false) => {
+    const url = `${base}/api/upload/any?consume=${consume}&gps=${gps}`;
+    const res = await fetch(url, {
       method: "POST",
-      body: fd
+      body: formData,
     });
     if (!res.ok) throw new Error(await res.text());
     return res.json();
