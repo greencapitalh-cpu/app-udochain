@@ -23,4 +23,18 @@ export default function Login() {
           <Input type="email" value={email} onChange={e=>setEmail(e.target.value)} placeholder="you@company.com" required />
         </label>
         <label className="block">
-          <span classN
+          <span className="text-sm">Password</span>
+          <Input type="password" value={password} onChange={e=>setPassword(e.target.value)} placeholder="••••••••" required />
+        </label>
+        <Button type="submit" className="w-full">Continue</Button>
+      </form>
+
+      <div className="my-4 h-px bg-slate-200" />
+      <SocialButtons onGoogle={()=>{}} onFacebook={()=>{}} onApple={()=>{}} />
+
+      <p className="text-sm text-udo-steel mt-4">
+        Don’t have an account? <Link to="/register" className="text-udo-primary underline">Sign up</Link>
+      </p>
+    </div>
+  );
+}
