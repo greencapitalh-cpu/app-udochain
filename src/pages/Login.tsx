@@ -1,4 +1,4 @@
-// [24] src/pages/Login.tsx
+// frontend/src/pages/Login.tsx
 import { useState } from "react";
 import Input from "../ui/Input";
 import Button from "../ui/Button";
@@ -23,10 +23,10 @@ export default function Login() {
     setBusy(true);
     setError(null);
     try {
-      const data = await postJson<{ token: string; user?: any }>(
-        "/api/auth/login",
-        { email, password }
-      );
+      const data = await postJson<{ token: string; user?: any }>("/api/auth/login", {
+        email,
+        password,
+      });
       login(data.token, data.user || null);
       navigate("/dashboard");
     } catch (err: any) {
