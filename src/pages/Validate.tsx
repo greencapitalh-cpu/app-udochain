@@ -1,10 +1,11 @@
-//src/pages/Validate.tsx
+// frontend/src/pages/Validate.tsx
 import { useEffect, useMemo, useState, useRef } from "react";
 import FileDropzone from "../components/FileDropzone";
 import CreditMeter from "../components/CreditMeter";
 import Button from "../ui/Button";
 import useUpload from "../hooks/useUpload";
 import useApi from "../hooks/useApi";
+import Finger from "../assets/fingerhash.png"; // ✅ usar import para Vite
 
 export default function Validate() {
   const [tab, setTab] = useState<"upload" | "live">("upload");
@@ -37,7 +38,7 @@ export default function Validate() {
     );
   }, [gpsOn]);
 
-  // --- Live camera setup ---
+  // Cámara: iniciar al entrar en "live" y APAGAR al salir
   useEffect(() => {
     if (tab !== "live") return;
     (async () => {
@@ -67,7 +68,6 @@ export default function Validate() {
     setPhotos((p) => [...p, file]);
   };
 
-  // --- Common flow ---
   const canValidate = useMemo(
     () => (tab === "upload" ? files.length > 0 : photos.length > 0),
     [tab, files, photos]
@@ -111,14 +111,6 @@ export default function Validate() {
           >
             Upload
           </button>
-          <button
-            onClick={() => setTab("live")}
-            className={`px-4 py-2 rounded-lg ${
-              tab === "live" ? "bg-udo-sky text-udo-primary" : "hover:bg-slate-100"
-            }`}
-          >
-            Live capture
-          </button>
         </div>
 
         {tab === "upload" ? (
@@ -145,35 +137,7 @@ export default function Validate() {
               </>
             )}
           </>
-        ) : (
-          <>
-            <div className="rounded-xl overflow-hidden bg-black aspect-video">
-              <video ref={videoRef} autoPlay playsInline className="w-full h-full object-cover" />
-            </div>
-            <div className="flex items-center justify-between mt-4">
-              <div className="text-sm text-udo-steel">
-                {liveReady ? "Camera active" : "Camera not available"}
-              </div>
-              <label className="inline-flex items-center gap-2">
-                <input
-                  type="checkbox"
-                  checked={gpsOn}
-                  onChange={(e) => setGpsOn(e.target.checked)}
-                />
-                <span className="text-sm text-udo-steel">Attach GPS</span>
-              </label>
-            </div>
-            <div className="mt-4 flex gap-3">
-              <Button onClick={takePhoto}>Take photo</Button>
-              <Button onClick={handleValidate} disabled={!canValidate || loading}>
-                {loading ? "Validating…" : "Confirm & Validate"}
-              </Button>
-            </div>
-            {photos.length > 0 && (
-              <p className="text-sm text-udo-steel mt-3">{photos.length} photo(s) captured</p>
-            )}
-          </>
-        )}
+        ) : null}
       </div>
 
       {bioPrompt && (
@@ -181,11 +145,7 @@ export default function Validate() {
           <div className="card p-6 max-w-sm text-center">
             <h3 className="font-semibold mb-2">Fingerprint verification</h3>
             <p className="text-sm text-udo-steel mb-3">Place your finger on the scanner.</p>
-            <img
-              src="/src/assets/fingerhash.png"
-              alt="fingerprint"
-              className="w-24 h-24 mx-auto mb-4"
-            />
+            <img src={Finger} alt="fingerprint" className="w-24 h-24 mx-auto mb-4" />
             <div className="flex justify-center gap-3">
               <Button onClick={confirmBio}>Verify</Button>
               <button
@@ -207,9 +167,7 @@ export default function Validate() {
             <span className="font-mono break-all">{result?.w1Hash || result?.hash || "—"}</span>
           </p>
           <div className="flex flex-wrap gap-3 mt-3">
-            <Button
-              onClick={() => alert("Download PDF (backend will serve certificate)")}
-            >
+            <Button onClick={() => alert("Download PDF certificate from backend")}>
               Download certificate (PDF)
             </Button>
             <Button
