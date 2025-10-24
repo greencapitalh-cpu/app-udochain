@@ -1,4 +1,4 @@
-// [25] src/pages/Register.tsx
+// frontend/src/pages/Register.tsx
 import { useState } from "react";
 import Input from "../ui/Input";
 import Button from "../ui/Button";
@@ -7,6 +7,10 @@ import { Link, useNavigate } from "react-router-dom";
 import useApi from "../hooks/useApi";
 import { useAuth } from "../context/AuthContext";
 import Loader from "../ui/Loader";
+
+function isStrongPassword(pw: string) {
+  return /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z\d]).{8,}$/.test(pw);
+}
 
 export default function Register() {
   const [name, setName] = useState("");
@@ -28,39 +32,38 @@ export default function Register() {
 
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setBusy(true);
     setError(null);
-    try {
-      // 1) Registro
-      const reg = await postJson<{ token: string; user?: any }>(
-        "/api/auth/register",
-        { name, email, password }
+
+    if (!isStrongPassword(password)) {
+      setError(
+        "Password must be at least 8 chars and include upper, lower, number and symbol."
       );
+      return;
+    }
+
+    setBusy(true);
+    try {
+      // 1) Registro (credits=0 por diseño; se liberan luego de idBase)
+      const reg = await postJson<{ token: string; user?: any }>("/api/auth/register", {
+        name,
+        email,
+        password,
+      });
       login(reg.token, reg.user || null);
 
-      // 2) Subir selfie (si el endpoint existe)
+      // 2) Selfie opcional (si existe el endpoint en tu backend)
       if (selfie) {
         const fd = new FormData();
         fd.append("selfie", selfie);
         try {
           await postForm("/api/profile/selfie", fd);
         } catch {
-          // Si no existe el endpoint, continuar sin bloquear
+          // no bloquea
         }
       }
 
-      // 3) Otorgar créditos iniciales (si el endpoint existe)
-      try {
-        const init = await patchJson<{ balance?: number }>(
-          "/api/credits/init",
-          {}
-        );
-        if (reg.user) {
-          setUser({ ...reg.user, credits: init?.balance ?? reg.user.credits });
-        }
-      } catch {
-        // Si no existe, ignorar
-      }
+      // 3) (Opcional) init credits si se quiere forzar desde FE (aquí no, se libera con idBase)
+      // try { await patchJson("/api/credits/init", {}); } catch {}
 
       navigate("/dashboard");
     } catch (err: any) {
