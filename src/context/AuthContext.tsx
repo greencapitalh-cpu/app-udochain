@@ -1,4 +1,4 @@
-// frontend/src/context/AuthContext.tsx
+// app-udochain/src/context/AuthContext.tsx
 import {
   createContext,
   useContext,
@@ -11,10 +11,13 @@ import useApi from "../hooks/useApi";
 
 type User = {
   _id?: string;
-  name?: string;
+  username?: string;   // ✅ nuevo
+  name?: string;       // se llenará en biometría base
   email?: string;
   credits?: number;
-  biometricReady?: boolean; // bandera UI (opcional)
+  biometricReady?: boolean;
+  idBase?: string | null;
+  idVerifiedAt?: string | null;
 };
 
 type AuthContextType = {
@@ -53,8 +56,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         setLoading(false);
       }
     })();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [token]);
+  }, [token]); // eslint-disable-line
 
   const login = (t: string, u?: User | null) => {
     localStorage.setItem("token", t);
