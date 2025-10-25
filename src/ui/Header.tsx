@@ -1,6 +1,7 @@
+// app-udochain/src/ui/Header.tsx
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
-import logoPath from "../assets/logo-udochain.png"; // ✅ Import directo desde assets
+import logoPath from "../assets/logo-udochain.png";
 
 export default function Header() {
   const { pathname } = useLocation();
@@ -22,6 +23,7 @@ export default function Header() {
       <div className="container-narrow flex items-center justify-between py-3 gap-4">
         <Link to="/" className="flex items-center gap-2">
           <img src={logoPath} alt="UDoChain" className="h-8 w-auto" />
+          {/* 🔒 Marca fija: no traducir */}
           <span className="font-semibold text-udo-ink hidden sm:inline">
             UDoChain
           </span>
@@ -47,7 +49,8 @@ export default function Header() {
           {token ? (
             <>
               <span className="text-sm text-udo-steel hidden sm:inline">
-                {user?.name || user?.email}
+                {/* ✅ Mostrar username prioritario */}
+                {user?.username || user?.email}
               </span>
               <button
                 className="px-3 py-1 rounded-lg bg-udo-primary text-white hover:bg-udo-ink"
@@ -61,10 +64,7 @@ export default function Header() {
             </>
           ) : (
             <>
-              <Link
-                to="/login"
-                className="px-3 py-1 rounded-lg hover:bg-slate-100"
-              >
+              <Link to="/login" className="px-3 py-1 rounded-lg hover:bg-slate-100">
                 Log in
               </Link>
               <Link
