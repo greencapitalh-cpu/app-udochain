@@ -14,6 +14,7 @@ import Payments from "../pages/Payments";
 import Settings from "../pages/Settings";
 import Legal from "../pages/Legal";
 import NotFound from "../pages/NotFound";
+import VerifyEmail from "../pages/VerifyEmail";
 
 const router = createBrowserRouter([
   {
@@ -33,6 +34,7 @@ const router = createBrowserRouter([
       { path: "settings", element: <Settings /> },
       { path: "legal", element: <Legal /> },
       { path: "*", element: <NotFound /> },
+      { path: "verify-email", element: <VerifyEmail /> },
     ],
   },
 ]);
