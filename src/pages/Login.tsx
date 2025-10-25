@@ -7,6 +7,7 @@ import { Link, useNavigate } from "react-router-dom";
 import useApi from "../hooks/useApi";
 import { useAuth } from "../context/AuthContext";
 import Loader from "../ui/Loader";
+import useTranslate from "../hooks/useTranslate";
 
 export default function Login() {
   const [email, setEmail] = useState("");
@@ -17,6 +18,7 @@ export default function Login() {
   const { postJson } = useApi();
   const { login } = useAuth();
   const navigate = useNavigate();
+  const { t, LangToggle } = useTranslate();
 
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -30,17 +32,20 @@ export default function Login() {
       login(data.token, data.user || null);
       navigate("/dashboard");
     } catch (err: any) {
-      setError(err?.message || "Login failed");
+      setError(err?.message || t("Login failed", "Error al iniciar sesión"));
     } finally {
       setBusy(false);
     }
   };
 
   return (
-    <div className="max-w-md mx-auto card p-6">
-      <h1 className="text-xl font-semibold mb-4">Log in</h1>
+    <div className="relative max-w-md mx-auto card p-6">
+      <LangToggle />
+      <h1 className="text-xl font-semibold mb-4">
+        {t("Log in", "Iniciar sesión")}
+      </h1>
       <form onSubmit={submit} className="space-y-3">
-        <label className="block text-sm">Email</label>
+        <label className="block text-sm">{t("Email", "Correo electrónico")}</label>
         <Input
           type="email"
           value={email}
@@ -48,7 +53,7 @@ export default function Login() {
           placeholder="you@company.com"
           required
         />
-        <label className="block text-sm">Password</label>
+        <label className="block text-sm">{t("Password", "Contraseña")}</label>
         <Input
           type="password"
           value={password}
@@ -57,19 +62,19 @@ export default function Login() {
           required
         />
         <Button disabled={busy} type="submit">
-          {busy ? "Signing in…" : "Continue"}
+          {busy ? t("Signing in…", "Ingresando…") : t("Continue", "Continuar")}
         </Button>
         {busy && <Loader />}
         {error && <p className="text-red-600 text-sm">{error}</p>}
       </form>
 
       <div className="my-4 h-px bg-slate-200" />
-      <SocialButtons onGoogle={() => {}} onFacebook={() => {}} onApple={() => {}} />
+      <SocialButtons />
 
       <p className="text-sm text-udo-steel mt-4">
-        Don’t have an account?{" "}
+        {t("Don’t have an account?", "¿No tienes una cuenta?")}{" "}
         <Link to="/register" className="text-udo-primary underline">
-          Sign up
+          {t("Sign up", "Regístrate")}
         </Link>
       </p>
     </div>
