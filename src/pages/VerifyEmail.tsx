@@ -1,110 +1,71 @@
-// src/pages/VerifyEmail.tsx
+// app-udochain/src/pages/VerifyEmail.tsx
 import { useEffect, useState } from "react";
 import { useSearchParams, useNavigate } from "react-router-dom";
 import useApi from "../hooks/useApi";
 import Loader from "../ui/Loader";
 import Button from "../ui/Button";
+import useAutoTranslate from "../hooks/useAutoTranslate";
 
 export default function VerifyEmail() {
+  useAutoTranslate();
+
   const [params] = useSearchParams();
   const token = params.get("token");
   const { postJson } = useApi();
-  const navigate = useNavigate();
-
   const [status, setStatus] = useState<"pending" | "success" | "error">("pending");
-  const [lang, setLang] = useState<"en" | "es">(
-    navigator.language.startsWith("es") ? "es" : "en"
-  );
-  const [message, setMessage] = useState(
-    lang === "es" ? "Verificando tu cuenta..." : "Verifying your account..."
-  );
-
-  const t = (en: string, es: string) => (lang === "es" ? es : en);
+  const [message, setMessage] = useState("Verifying your account...");
+  const navigate = useNavigate();
 
   useEffect(() => {
     if (!token) {
       setStatus("error");
-      setMessage(
-        t("Verification link not found or invalid.", "Enlace de verificación no encontrado o inválido.")
-      );
+      setMessage("Verification token not found.");
       return;
     }
 
     (async () => {
       try {
         const res = await postJson(`/api/auth/confirm/${token}`, {});
-        if (res?.ok || res?.message?.includes("verificada")) {
+        if (res?.ok) {
           setStatus("success");
-          setMessage(
-            t(
-              "✅ Your email has been verified successfully!",
-              "✅ Tu correo ha sido verificado correctamente."
-            )
-          );
+          setMessage("✅ Your email has been verified successfully!");
         } else {
-          throw new Error(
-            res?.message ||
-              t("Verification failed. Please try again.", "No se pudo verificar el correo.")
-          );
+          throw new Error(res?.message || "Verification failed");
         }
       } catch (err: any) {
         setStatus("error");
-        setMessage(
-          err?.message ||
-            t("Verification failed. Please try again.", "No se pudo verificar la cuenta.")
-        );
+        setMessage(err?.message || "Verification failed.");
       }
     })();
-  }, [token, lang]);
+  }, [token]);
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center p-6 text-center bg-gray-50">
-      <div className="bg-white shadow-md rounded-xl p-6 max-w-md w-full">
-        {/* 🌐 Language Toggle */}
-        <div className="text-right mb-2">
-          <button
-            onClick={() => setLang(lang === "en" ? "es" : "en")}
-            className="text-xs text-udo-primary hover:underline"
-          >
-            {lang === "en" ? "🇪🇸 Español" : "🇺🇸 English"}
-          </button>
-        </div>
+    <div className="min-h-screen flex flex-col items-center justify-center p-6 text-center">
+      {status === "pending" && (
+        <>
+          <Loader />
+          <p className="mt-4 text-sm text-udo-steel">{message}</p>
+        </>
+      )}
 
-        {/* 🧩 Dynamic content */}
-        {status === "pending" && (
-          <>
-            <Loader />
-            <p className="mt-4 text-sm text-udo-steel">{message}</p>
-          </>
-        )}
+      {status === "success" && (
+        <>
+          <p className="text-green-600 text-lg font-semibold">{message}</p>
+          <Button onClick={() => navigate("/login")} className="mt-4">
+            Go to Login
+          </Button>
+        </>
+      )}
 
-        {status === "success" && (
-          <>
-            <p className="text-green-600 text-lg font-semibold mb-2">{message}</p>
-            <p className="text-sm text-udo-steel mb-4">
-              {t(
-                "You can now log in with your credentials.",
-                "Ya puedes iniciar sesión con tus credenciales."
-              )}
-            </p>
-            <Button onClick={() => navigate("/login")} className="mt-2">
-              {t("Go to Login", "Ir al inicio de sesión")}
-            </Button>
-          </>
-        )}
-
-        {status === "error" && (
-          <>
-            <p className="text-red-600 text-lg font-semibold mb-2">
-              {t("Verification failed", "Verificación fallida")}
-            </p>
-            <p className="text-sm text-udo-steel mb-4">{message}</p>
-            <Button onClick={() => navigate("/register")} className="mt-2">
-              {t("Back to Register", "Volver al registro")}
-            </Button>
-          </>
-        )}
-      </div>
+      {status === "error" && (
+        <>
+          <p className="text-red-600 text-lg font-semibold mb-2">Verification Failed</p>
+          <p className="text-sm text-udo-steel">{message}</p>
+          <Button onClick={() => navigate("/register")} className="mt-4">
+            Back to Register
+          </Button>
+        </>
+      )}
     </div>
   );
 }
