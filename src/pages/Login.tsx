@@ -1,4 +1,3 @@
-// frontend/src/pages/Login.tsx
 import { useState } from "react";
 import Input from "../ui/Input";
 import Button from "../ui/Button";
@@ -7,9 +6,10 @@ import { Link, useNavigate } from "react-router-dom";
 import useApi from "../hooks/useApi";
 import { useAuth } from "../context/AuthContext";
 import Loader from "../ui/Loader";
-import useTranslate from "../hooks/useTranslate";
+import useAutoTranslate from "../hooks/useAutoTranslate";
 
 export default function Login() {
+  useAutoTranslate(); // 🌍 Automatic translation based on browser
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [busy, setBusy] = useState(false);
@@ -18,7 +18,6 @@ export default function Login() {
   const { postJson } = useApi();
   const { login } = useAuth();
   const navigate = useNavigate();
-  const { t, LangToggle } = useTranslate();
 
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -32,20 +31,17 @@ export default function Login() {
       login(data.token, data.user || null);
       navigate("/dashboard");
     } catch (err: any) {
-      setError(err?.message || t("Login failed", "Error al iniciar sesión"));
+      setError(err?.message || "Login failed");
     } finally {
       setBusy(false);
     }
   };
 
   return (
-    <div className="relative max-w-md mx-auto card p-6">
-      <LangToggle />
-      <h1 className="text-xl font-semibold mb-4">
-        {t("Log in", "Iniciar sesión")}
-      </h1>
+    <div className="max-w-md mx-auto card p-6">
+      <h1 className="text-xl font-semibold mb-4">Log in</h1>
       <form onSubmit={submit} className="space-y-3">
-        <label className="block text-sm">{t("Email", "Correo electrónico")}</label>
+        <label className="block text-sm">Email</label>
         <Input
           type="email"
           value={email}
@@ -53,7 +49,7 @@ export default function Login() {
           placeholder="you@company.com"
           required
         />
-        <label className="block text-sm">{t("Password", "Contraseña")}</label>
+        <label className="block text-sm">Password</label>
         <Input
           type="password"
           value={password}
@@ -62,7 +58,7 @@ export default function Login() {
           required
         />
         <Button disabled={busy} type="submit">
-          {busy ? t("Signing in…", "Ingresando…") : t("Continue", "Continuar")}
+          {busy ? "Signing in…" : "Continue"}
         </Button>
         {busy && <Loader />}
         {error && <p className="text-red-600 text-sm">{error}</p>}
@@ -72,9 +68,9 @@ export default function Login() {
       <SocialButtons />
 
       <p className="text-sm text-udo-steel mt-4">
-        {t("Don’t have an account?", "¿No tienes una cuenta?")}{" "}
+        Don’t have an account?{" "}
         <Link to="/register" className="text-udo-primary underline">
-          {t("Sign up", "Regístrate")}
+          Sign up
         </Link>
       </p>
     </div>
