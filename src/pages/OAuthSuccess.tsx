@@ -1,12 +1,11 @@
 // =======================================================
-// ✅ OAuthSuccess.tsx — UDoChain PMDSU v1.4 (Multiplataforma)
+// ✅ OAuthSuccess.tsx — PMDSU v1.7
 // =======================================================
 //
-// 🔍 Qué hace:
-// - Captura el token de Google, Facebook o Apple (?token / ?authToken).
-// - Valida el token con /api/auth/me.
-// - Guarda sesión global (AuthContext) y redirige al Dashboard.
-// - Traduce automáticamente según idioma del dispositivo.
+// 🚀 Qué hace:
+//  - Recibe token de Google, Facebook o Email verified
+//  - Llama a /api/auth/me para validar usuario
+//  - Guarda sesión y redirige automáticamente al dashboard
 //
 // =======================================================
 
@@ -18,15 +17,13 @@ import Loader from "../ui/Loader";
 import useAutoTranslate from "../hooks/useAutoTranslate";
 
 export default function OAuthSuccess() {
-  useAutoTranslate(); // 🌍 Traducción automática
+  useAutoTranslate();
 
   const navigate = useNavigate();
   const [params] = useSearchParams();
+  const token = params.get("token") || params.get("authToken");
   const { getJson } = useApi();
   const { login } = useAuth();
-
-  // 🔑 Captura token universal (Google / Facebook / Apple)
-  const token = params.get("token") || params.get("authToken");
 
   const [status, setStatus] = useState<"loading" | "error">("loading");
   const [message, setMessage] = useState("Validando tu sesión...");
@@ -34,27 +31,25 @@ export default function OAuthSuccess() {
   useEffect(() => {
     if (!token) {
       setStatus("error");
-      setMessage("No se encontró el token de sesión.");
+      setMessage("Token de sesión no encontrado.");
       return;
     }
 
     (async () => {
       try {
-        // 🚀 Validar token contra backend
         const user = await getJson("/api/auth/me", {
           headers: { Authorization: `Bearer ${token}` },
         });
 
         if (user && user.email) {
-          // 💾 Guardar sesión en AuthContext
           login(token, user);
-          setMessage("✅ Sesión verificada. Redirigiendo...");
+          setMessage("✅ Sesión verificada. Redirigiendo al Dashboard...");
           setTimeout(() => navigate("/dashboard"), 1500);
         } else {
           throw new Error("Respuesta inválida del servidor.");
         }
       } catch (err: any) {
-        console.error("❌ OAuthSuccess error:", err.message || err);
+        console.error("❌ OAuthSuccess error:", err);
         setStatus("error");
         setMessage("Error al validar la sesión. Intenta nuevamente.");
       }
