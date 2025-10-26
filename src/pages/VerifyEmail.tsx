@@ -1,19 +1,15 @@
 // =======================================================
-// ✅ VerifyEmail.tsx — PMDSU v1.3 (DETALLADO)
+// ✅ VerifyEmail.tsx — PMDSU v1.7
 // =======================================================
 //
-// Qué hace:
-// - Lee ?token= de la URL (llega desde el email).
-// - Llama a /api/auth/confirm/:token (POST) con token codificado.
-// - Si responde ok+token → guarda sesión (useAuth.login) y redirige a /dashboard.
-// - Muestra estados "pending", "success" o "error".
-//
-// Requisitos:
-// - useApi.postJson (ya existente en tu proyecto).
-// - useAuth.login(token, user) que guarde token + datos del usuario.
-// - useAutoTranslate para traducción automática (política de idioma).
+// 🚀 Qué hace:
+//  - Lee ?token= desde el correo
+//  - Llama al backend /api/auth/confirm/:token
+//  - Si el token es válido, inicia sesión automática y redirige al dashboard
+//  - Si falla, muestra error y permite reintentar o ir al login
 //
 // =======================================================
+
 import { useEffect, useState } from "react";
 import { useSearchParams, useNavigate } from "react-router-dom";
 import useApi from "../hooks/useApi";
@@ -24,9 +20,8 @@ import useAutoTranslate from "../hooks/useAutoTranslate";
 
 export default function VerifyEmail() {
   useAutoTranslate();
-
   const [params] = useSearchParams();
-  const token = params.get("token"); // viene desde el email
+  const token = params.get("token");
   const { postJson } = useApi();
   const { login } = useAuth();
   const navigate = useNavigate();
@@ -43,20 +38,18 @@ export default function VerifyEmail() {
 
     (async () => {
       try {
-        // ⚠️ IMPORTANTE: codificar token (evita romper si tiene + / =)
-        const res = await postJson(`/api/auth/confirm/${encodeURIComponent(token)}`, {});
-        // Esperamos { ok:true, token, user }
+        const res = await postJson(`/api/auth/confirm/${token}`, {});
         if (res?.ok && res?.token) {
-          // Guarda sesión inmediatamente y redirige (UX limpia)
+          // ✅ Login automático y redirección
           login(res.token, res.user);
           setStatus("success");
-          setMessage("✅ Account verified successfully. Redirecting...");
+          setMessage("✅ Email verified successfully. Redirecting...");
           setTimeout(() => navigate("/dashboard"), 1500);
         } else {
           throw new Error(res?.message || "Verification failed");
         }
       } catch (err: any) {
-        console.error("❌ verify-email error:", err?.message || err);
+        console.error("❌ VerifyEmail error:", err);
         setStatus("error");
         setMessage(err?.message || "Verification failed.");
       }
@@ -75,7 +68,9 @@ export default function VerifyEmail() {
       {status === "success" && (
         <>
           <p className="text-green-600 text-lg font-semibold">{message}</p>
-          <Loader />
+          <Button onClick={() => navigate("/dashboard")} className="mt-4">
+            Go to Dashboard
+          </Button>
         </>
       )}
 
@@ -83,9 +78,9 @@ export default function VerifyEmail() {
         <>
           <p className="text-red-600 text-lg font-semibold mb-2">Verification Failed</p>
           <p className="text-sm text-udo-steel">{message}</p>
-          <div className="mt-4 flex gap-2 justify-center">
+          <div className="flex gap-2 mt-4">
             <Button onClick={() => navigate("/register")}>Back to Register</Button>
-            <Button onClick={() => navigate("/login")} variant="secondary">Go to Login</Button>
+            <Button onClick={() => navigate("/login")}>Go to Login</Button>
           </div>
         </>
       )}
