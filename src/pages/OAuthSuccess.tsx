@@ -1,18 +1,12 @@
 // =======================================================
-// ✅ OAuthSuccess.tsx — UDoChain PMDSU v1.3
+// ✅ OAuthSuccess.tsx — UDoChain PMDSU v1.4 (Multiplataforma)
 // =======================================================
 //
 // 🔍 Qué hace:
-// - Lee el parámetro ?token= que viene de Google, Facebook o Apple OAuth.
-// - Valida el token llamando a /api/auth/me.
-// - Guarda la sesión en el AuthContext (login(token, user)).
-// - Muestra un mensaje tipo “Validando tu sesión…” mientras se procesa.
-// - Redirige automáticamente a /dashboard.
-//
-// 🧩 Requisitos previos:
-// - useApi.ts → debe tener postJson/getJson
-// - useAuth.tsx → debe tener login(token, user)
-// - useAutoTranslate() activo (para multilenguaje)
+// - Captura el token de Google, Facebook o Apple (?token / ?authToken).
+// - Valida el token con /api/auth/me.
+// - Guarda sesión global (AuthContext) y redirige al Dashboard.
+// - Traduce automáticamente según idioma del dispositivo.
 //
 // =======================================================
 
@@ -24,13 +18,15 @@ import Loader from "../ui/Loader";
 import useAutoTranslate from "../hooks/useAutoTranslate";
 
 export default function OAuthSuccess() {
-  useAutoTranslate(); // 🌍 Traducción automática (multilenguaje)
+  useAutoTranslate(); // 🌍 Traducción automática
 
   const navigate = useNavigate();
   const [params] = useSearchParams();
-  const token = params.get("token");
   const { getJson } = useApi();
   const { login } = useAuth();
+
+  // 🔑 Captura token universal (Google / Facebook / Apple)
+  const token = params.get("token") || params.get("authToken");
 
   const [status, setStatus] = useState<"loading" | "error">("loading");
   const [message, setMessage] = useState("Validando tu sesión...");
@@ -44,13 +40,13 @@ export default function OAuthSuccess() {
 
     (async () => {
       try {
-        // 🚀 Consultar /api/auth/me con token temporal para obtener datos del usuario
+        // 🚀 Validar token contra backend
         const user = await getJson("/api/auth/me", {
           headers: { Authorization: `Bearer ${token}` },
         });
 
         if (user && user.email) {
-          // 💾 Guarda sesión en el contexto global
+          // 💾 Guardar sesión en AuthContext
           login(token, user);
           setMessage("✅ Sesión verificada. Redirigiendo...");
           setTimeout(() => navigate("/dashboard"), 1500);
