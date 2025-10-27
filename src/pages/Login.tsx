@@ -68,11 +68,17 @@ export default function Login() {
       <SocialButtons />
 
       <p className="text-sm text-udo-steel mt-4">
-        Don’t have an account?{" "}
-        <Link to="/register" className="text-udo-primary underline">
-          Sign up
-        </Link>
-      </p>
+  Don't have an account?{" "}
+  <Link to="/register" className="text-udo-primary underline">
+    Sign up
+  </Link>
+</p>
+
+<p className="text-sm text-udo-steel mt-2">
+  <Link to="/forgot-password" className="underline text-udo-primary">
+    Forgot your password?
+  </Link>
+</p>
     </div>
   );
 }
