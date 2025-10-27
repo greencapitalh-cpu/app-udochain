@@ -2,10 +2,15 @@
 type Json = Record<string, any>;
 
 export default function useApi() {
-  const base = (import.meta.env.VITE_API_BASE_URL as string) || "";
+  // 🔧 Ajuste PMDSU — base URL sin /api
+  const base =
+    (import.meta.env.VITE_API_BASE_URL as string) ||
+    "https://api.udochain.com";
 
   const url = (path: string) =>
-    path.startsWith("http") ? path : `${base.replace(/\/$/, "")}${path}`;
+    path.startsWith("http")
+      ? path
+      : `${base.replace(/\/$/, "")}${path.startsWith("/") ? "" : "/"}${path}`;
 
   const handle = async <T = any>(res: Response): Promise<T> => {
     const text = await res.text();
@@ -26,10 +31,7 @@ export default function useApi() {
     const token = localStorage.getItem("token");
     const res = await fetch(url(path), {
       method: "GET",
-      headers: {
-        ...(token ? { Authorization: `Bearer ${token}` } : {}),
-      },
-      credentials: "omit",
+      headers: token ? { Authorization: `Bearer ${token}` } : {},
     });
     return handle<T>(res);
   };
@@ -43,7 +45,6 @@ export default function useApi() {
         ...(token ? { Authorization: `Bearer ${token}` } : {}),
       },
       body: body ? JSON.stringify(body) : undefined,
-      credentials: "omit",
     });
     return handle<T>(res);
   };
@@ -57,7 +58,6 @@ export default function useApi() {
         ...(token ? { Authorization: `Bearer ${token}` } : {}),
       },
       body: body ? JSON.stringify(body) : undefined,
-      credentials: "omit",
     });
     return handle<T>(res);
   };
@@ -66,11 +66,8 @@ export default function useApi() {
     const token = localStorage.getItem("token");
     const res = await fetch(url(path), {
       method: "POST",
-      headers: {
-        ...(token ? { Authorization: `Bearer ${token}` } : {}),
-      },
+      headers: token ? { Authorization: `Bearer ${token}` } : {},
       body: form,
-      credentials: "omit",
     });
     return handle<T>(res);
   };
