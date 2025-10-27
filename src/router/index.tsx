@@ -15,6 +15,7 @@ import Settings from "../pages/Settings";
 import Legal from "../pages/Legal";
 import NotFound from "../pages/NotFound";
 import VerifyEmail from "../pages/VerifyEmail";
+import OAuthSuccess from "../pages/OAuthSuccess";
 
 const router = createBrowserRouter([
   {
@@ -35,6 +36,7 @@ const router = createBrowserRouter([
       { path: "legal", element: <Legal /> },
       { path: "*", element: <NotFound /> },
       { path: "verify-email", element: <VerifyEmail /> },
+      { path: "oauth-success", element: <OAuthSuccess /> },
     ],
   },
 ]);
