@@ -77,7 +77,7 @@ export default function Register() {
           <Input
             value={username}
             onChange={(e) => setUsername((e.target as HTMLInputElement).value)}
-            placeholder="e.g. CL4UD1O1"
+            placeholder="ex. Jhonny99"
             required
             maxLength={8}
             minLength={8}
