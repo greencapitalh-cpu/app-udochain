@@ -3,11 +3,11 @@ import React from "react";
 
 export default function SocialButtons() {
   const handleGoogle = () => {
-    window.location.assign("https://api.udochain.com/auth/google");
+    window.location.assign("https://api.udochain.com/api/auth/google");
   };
 
   const handleFacebook = () => {
-    window.location.assign("https://api.udochain.com/auth/facebook");
+    window.location.assign("https://api.udochain.com/api/auth/facebook");
   };
 
   const handleApple = () => {
