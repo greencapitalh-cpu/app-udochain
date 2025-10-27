@@ -2,7 +2,7 @@ import { useEffect } from "react";
 import { useAuth } from "../context/AuthContext";
 import { useNavigate } from "react-router-dom";
 
-export default function VerifyEmail() {
+export default function OAuthSuccess() {
   const { login } = useAuth();
   const navigate = useNavigate();
 
@@ -13,14 +13,13 @@ export default function VerifyEmail() {
       login(token);
       navigate("/dashboard");
     } else {
-      alert("Verification failed or expired");
       navigate("/login");
     }
   }, []);
 
   return (
     <div className="flex flex-col items-center justify-center min-h-screen text-center">
-      <p className="text-lg text-gray-700">Verifying your email...</p>
+      <p className="text-lg text-gray-700">Loading your account...</p>
     </div>
   );
 }
