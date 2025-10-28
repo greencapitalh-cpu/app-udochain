@@ -1,5 +1,5 @@
 // =======================================================
-// 🔑 ResetPassword.tsx — Formulario de restablecimiento de contraseña
+// 🔑 ResetPassword.tsx — Formulario de restablecimiento de contraseña (v2.1)
 // =======================================================
 import React, { useState } from "react";
 import { useSearchParams, useNavigate } from "react-router-dom";
@@ -14,26 +14,38 @@ export default function ResetPassword() {
   const [password, setPassword] = useState("");
   const [confirm, setConfirm] = useState("");
   const [message, setMessage] = useState("");
+  const [isError, setIsError] = useState(false);
   const [loading, setLoading] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (password !== confirm) {
-      setMessage("Passwords do not match.");
+      setMessage("⚠️ Passwords do not match.");
+      setIsError(true);
       return;
     }
 
     setLoading(true);
+    setMessage("");
+    setIsError(false);
+
     try {
       const res = await req("/api/auth/reset-password", {
         method: "POST",
         data: { token, newPassword: password },
       });
-      setMessage(res.message || "Password reset successfully.");
-      // Redirigir luego de unos segundos
-      setTimeout(() => navigate("/login"), 2000);
+      setMessage(res.message || "✅ Password reset successfully.");
+      setIsError(false);
+
+      setTimeout(() => {
+        navigate("/login");
+      }, 3000);
     } catch (err: any) {
-      setMessage(err.response?.data?.message || "Error resetting password.");
+      const msg =
+        err?.response?.data?.message ||
+        "⚠️ Error resetting password. Token may have expired.";
+      setMessage(msg);
+      setIsError(true);
     } finally {
       setLoading(false);
     }
@@ -44,7 +56,7 @@ export default function ResetPassword() {
       <div className="max-w-md w-full bg-white p-8 rounded-2xl shadow-md">
         <h1 className="text-2xl font-bold mb-4">Reset your password</h1>
         <p className="text-sm text-gray-600 mb-6">
-          Please enter a new password for your account.
+          Please enter and confirm your new password below.
         </p>
 
         <form onSubmit={handleSubmit}>
@@ -64,16 +76,25 @@ export default function ResetPassword() {
             onChange={(e) => setConfirm(e.target.value)}
             required
           />
+
           <button
             type="submit"
-            className="w-full bg-udo-primary text-white py-2 rounded hover:bg-udo-primary/90"
+            className="w-full bg-udo-primary text-white py-2 rounded hover:bg-udo-primary/90 disabled:opacity-60"
             disabled={loading}
           >
             {loading ? "Updating..." : "Update Password"}
           </button>
         </form>
 
-        {message && <p className="mt-4 text-sm text-gray-700">{message}</p>}
+        {message && (
+          <p
+            className={`mt-4 text-sm ${
+              isError ? "text-red-600" : "text-green-600"
+            }`}
+          >
+            {message}
+          </p>
+        )}
       </div>
     </div>
   );
