@@ -57,11 +57,19 @@ export default function Login() {
           placeholder="••••••••"
           required
         />
-        <Button disabled={busy} type="submit">
-          {busy ? "Signing in…" : "Continue"}
-        </Button>
-        {busy && <Loader />}
-        {error && <p className="text-red-600 text-sm">{error}</p>}
+       <Button disabled={busy} type="submit" className="w-full">
+  {busy ? "Signing in…" : "Continue"}
+</Button>
+
+{/* 🧭 Forgot Password link — agregado aquí */}
+<div className="text-right">
+  <Link to="/forgot-password" className="text-udo-primary text-sm underline">
+    Forgot your password?
+  </Link>
+</div>
+
+{busy && <Loader />}
+{error && <p className="text-red-600 text-sm font-medium">{error}</p>}
       </form>
 
       <div className="my-4 h-px bg-slate-200" />
