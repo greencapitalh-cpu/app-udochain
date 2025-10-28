@@ -16,6 +16,8 @@ import Legal from "../pages/Legal";
 import NotFound from "../pages/NotFound";
 import VerifyEmail from "../pages/VerifyEmail";
 import OAuthSuccess from "../pages/OAuthSuccess";
+import ResetPassword from "../pages/ResetPassword";
+import ForgotPassword from "../pages/ForgotPassword";
 
 const router = createBrowserRouter([
   {
