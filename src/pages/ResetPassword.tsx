@@ -1,16 +1,21 @@
 // =======================================================
-// 🔑 ResetPassword.tsx — Corrige obtención de token desde PATH
+// 🔑 ResetPassword.tsx — Versión estable 2025 (sin errores de token expirado)
 // =======================================================
 import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useSearchParams, useNavigate } from "react-router-dom";
 import useApi from "../hooks/useApi";
 
 export default function ResetPassword() {
+  const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const { req } = useApi();
 
-  // ✅ Token ahora viene desde la ruta, no desde query
-  const token = window.location.pathname.split("/").pop() || "";
+  // ✅ Limpieza robusta del token (quita espacios, saltos, caracteres invisibles)
+  const token = (searchParams.get("token") || "")
+    .replace(/\s/g, "")
+    .replace(/(\r\n|\n|\r)/gm, "")
+    .trim();
+
   const [password, setPassword] = useState("");
   const [confirm, setConfirm] = useState("");
   const [message, setMessage] = useState("");
@@ -19,6 +24,7 @@ export default function ResetPassword() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
     if (password !== confirm) {
       setMessage("⚠️ Passwords do not match.");
       setIsError(true);
@@ -34,10 +40,16 @@ export default function ResetPassword() {
         method: "POST",
         data: { token, newPassword: password },
       });
+
       setMessage(res.message || "✅ Password reset successfully.");
       setIsError(false);
-      setTimeout(() => navigate("/login"), 2500);
+
+      // ⏳ Redirección automática tras éxito
+      setTimeout(() => {
+        navigate("/login");
+      }, 2500);
     } catch (err: any) {
+      console.error("⚠️ Reset password error:", err);
       const msg =
         err?.response?.data?.message ||
         "⚠️ Error resetting password. Token may have expired.";
@@ -51,7 +63,9 @@ export default function ResetPassword() {
   return (
     <div className="flex flex-col items-center justify-center min-h-screen bg-gray-50 text-center p-6">
       <div className="max-w-md w-full bg-white p-8 rounded-2xl shadow-md">
-        <h1 className="text-2xl font-bold mb-4">Reset your password</h1>
+        <h1 className="text-2xl font-bold mb-4 text-udo-primary">
+          Reset your password
+        </h1>
         <p className="text-sm text-gray-600 mb-6">
           Please enter and confirm your new password below.
         </p>
@@ -60,7 +74,7 @@ export default function ResetPassword() {
           <input
             type="password"
             placeholder="New password"
-            className="w-full border p-3 rounded mb-3"
+            className="w-full border border-gray-300 p-3 rounded mb-3 focus:outline-none focus:ring-2 focus:ring-udo-primary"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             required
@@ -68,7 +82,7 @@ export default function ResetPassword() {
           <input
             type="password"
             placeholder="Confirm password"
-            className="w-full border p-3 rounded mb-3"
+            className="w-full border border-gray-300 p-3 rounded mb-3 focus:outline-none focus:ring-2 focus:ring-udo-primary"
             value={confirm}
             onChange={(e) => setConfirm(e.target.value)}
             required
@@ -76,7 +90,7 @@ export default function ResetPassword() {
 
           <button
             type="submit"
-            className="w-full bg-udo-primary text-white py-2 rounded hover:bg-udo-primary/90 disabled:opacity-60"
+            className="w-full bg-udo-primary text-white py-2 rounded-lg hover:bg-udo-primary/90 disabled:opacity-60 transition"
             disabled={loading}
           >
             {loading ? "Updating..." : "Update Password"}
@@ -84,10 +98,21 @@ export default function ResetPassword() {
         </form>
 
         {message && (
-          <p className={`mt-4 text-sm ${isError ? "text-red-600" : "text-green-600"}`}>
+          <p
+            className={`mt-4 text-sm ${
+              isError ? "text-red-600" : "text-green-600"
+            }`}
+          >
             {message}
           </p>
         )}
+
+        <button
+          onClick={() => navigate("/login")}
+          className="mt-6 text-sm text-udo-steel hover:underline"
+        >
+          Back to login
+        </button>
       </div>
     </div>
   );
