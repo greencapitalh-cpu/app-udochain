@@ -8,7 +8,7 @@ import useApi from "../hooks/useApi";
 export default function ResetPassword() {
   const { token } = useParams<{ token: string }>();
   const navigate = useNavigate();
-  const { req } = useApi();
+  const { postJson } = useApi();
 
   const [password, setPassword] = useState("");
   const [confirm, setConfirm] = useState("");
@@ -30,10 +30,11 @@ export default function ResetPassword() {
     setIsError(false);
 
     try {
-      const res = await req("/api/auth/reset-password", {
-        method: "POST",
-        data: { token, newPassword: password },
-      });
+      const res = await postJson("/api/auth/reset-password", {
+  token,
+  newPassword: password,
+});
+
 
       setMessage(res.message || "✅ Password reset successfully.");
       setIsError(false);
