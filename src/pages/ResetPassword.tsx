@@ -1,20 +1,14 @@
 // =======================================================
-// 🔑 ResetPassword.tsx — Versión estable 2025 (sin errores de token expirado)
+// 🔑 ResetPassword.tsx — Versión Opción B (token aleatorio en DB)
 // =======================================================
 import React, { useState } from "react";
-import { useSearchParams, useNavigate } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import useApi from "../hooks/useApi";
 
 export default function ResetPassword() {
-  const [searchParams] = useSearchParams();
+  const { token } = useParams<{ token: string }>();
   const navigate = useNavigate();
   const { req } = useApi();
-
-  // ✅ Limpieza robusta del token (quita espacios, saltos, caracteres invisibles)
-  const token = (searchParams.get("token") || "")
-    .replace(/\s/g, "")
-    .replace(/(\r\n|\n|\r)/gm, "")
-    .trim();
 
   const [password, setPassword] = useState("");
   const [confirm, setConfirm] = useState("");
@@ -44,15 +38,12 @@ export default function ResetPassword() {
       setMessage(res.message || "✅ Password reset successfully.");
       setIsError(false);
 
-      // ⏳ Redirección automática tras éxito
-      setTimeout(() => {
-        navigate("/login");
-      }, 2500);
+      setTimeout(() => navigate("/login"), 2500);
     } catch (err: any) {
       console.error("⚠️ Reset password error:", err);
       const msg =
         err?.response?.data?.message ||
-        "⚠️ Error resetting password. Token may have expired.";
+        "⚠️ Error resetting password. Invalid or expired link.";
       setMessage(msg);
       setIsError(true);
     } finally {
@@ -67,7 +58,7 @@ export default function ResetPassword() {
           Reset your password
         </h1>
         <p className="text-sm text-gray-600 mb-6">
-          Please enter and confirm your new password below.
+          Enter and confirm your new password below.
         </p>
 
         <form onSubmit={handleSubmit}>
