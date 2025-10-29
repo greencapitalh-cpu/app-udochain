@@ -10,7 +10,7 @@ export default function ResetPassword() {
   const navigate = useNavigate();
   const { req } = useApi();
 
-  const token = decodeURIComponent(searchParams.get("token") || "").trim();
+  const token = decodeURIComponent(searchParams.get("token") || "").replace(/\s/g, "").trim();
   const [password, setPassword] = useState("");
   const [confirm, setConfirm] = useState("");
   const [message, setMessage] = useState("");
