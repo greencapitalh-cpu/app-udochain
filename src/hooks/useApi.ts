@@ -4,7 +4,7 @@ type Json = Record<string, any>;
 export default function useApi() {
   // 🔧 Ajuste PMDSU — base URL sin /api
   const base =
-    (import.meta.env.VITE_API_BASE_URL as string) ||
+    (import.meta.env.VITE_API_URL as string) ||
     "https://api.udochain.com";
 
   const url = (path: string) =>
