@@ -1,16 +1,16 @@
 // =======================================================
-// 🔑 ResetPassword.tsx — Formulario de restablecimiento de contraseña (v2.1)
+// 🔑 ResetPassword.tsx — Corrige obtención de token desde PATH
 // =======================================================
 import React, { useState } from "react";
-import { useSearchParams, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import useApi from "../hooks/useApi";
 
 export default function ResetPassword() {
-  const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const { req } = useApi();
 
-  const token = decodeURIComponent(searchParams.get("token") || "").replace(/\s/g, "").trim();
+  // ✅ Token ahora viene desde la ruta, no desde query
+  const token = window.location.pathname.split("/").pop() || "";
   const [password, setPassword] = useState("");
   const [confirm, setConfirm] = useState("");
   const [message, setMessage] = useState("");
@@ -36,10 +36,7 @@ export default function ResetPassword() {
       });
       setMessage(res.message || "✅ Password reset successfully.");
       setIsError(false);
-
-      setTimeout(() => {
-        navigate("/login");
-      }, 3000);
+      setTimeout(() => navigate("/login"), 2500);
     } catch (err: any) {
       const msg =
         err?.response?.data?.message ||
@@ -87,11 +84,7 @@ export default function ResetPassword() {
         </form>
 
         {message && (
-          <p
-            className={`mt-4 text-sm ${
-              isError ? "text-red-600" : "text-green-600"
-            }`}
-          >
+          <p className={`mt-4 text-sm ${isError ? "text-red-600" : "text-green-600"}`}>
             {message}
           </p>
         )}
