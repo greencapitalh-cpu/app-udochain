@@ -1,10 +1,17 @@
 // src/router/index.tsx
 import { createBrowserRouter } from "react-router-dom";
+
+// 🔹 Layouts
 import RootLayout from "../shared/RootLayout";
+import DashboardLayout from "../shared/DashboardLayout";
+
+// 🔹 Protecciones
+import ProtectedRoute from "../shared/ProtectedRoute"; // 👈 nuevo import
+
+// 🔹 Páginas generales
 import Home from "../pages/Home";
 import Login from "../pages/Login";
 import Register from "../pages/Register";
-import Dashboard from "../pages/Dashboard";
 import Validate from "../pages/Validate";
 import SignPage from "../pages/Sign";
 import Vote from "../pages/Vote";
@@ -13,13 +20,17 @@ import Invitations from "../pages/Invitations";
 import Payments from "../pages/Payments";
 import Settings from "../pages/Settings";
 import Legal from "../pages/Legal";
-import NotFound from "../pages/NotFound";
 import VerifyEmail from "../pages/VerifyEmail";
 import OAuthSuccess from "../pages/OAuthSuccess";
 import ResetPassword from "../pages/ResetPassword";
 import ForgotPassword from "../pages/ForgotPassword";
+import NotFound from "../pages/NotFound";
+
+// 🔹 Dashboard
+import Dashboard from "../pages/Dashboard";
 
 const router = createBrowserRouter([
+  // 🟢 Sección pública
   {
     path: "/",
     element: <RootLayout />,
@@ -27,7 +38,6 @@ const router = createBrowserRouter([
       { index: true, element: <Home /> },
       { path: "login", element: <Login /> },
       { path: "register", element: <Register /> },
-      { path: "dashboard", element: <Dashboard /> },
       { path: "validate", element: <Validate /> },
       { path: "sign", element: <SignPage /> },
       { path: "vote", element: <Vote /> },
@@ -36,11 +46,25 @@ const router = createBrowserRouter([
       { path: "payments", element: <Payments /> },
       { path: "settings", element: <Settings /> },
       { path: "legal", element: <Legal /> },
-      { path: "*", element: <NotFound /> },
       { path: "verify-email", element: <VerifyEmail /> },
       { path: "oauth-success", element: <OAuthSuccess /> },
       { path: "reset-password/:token", element: <ResetPassword /> },
       { path: "forgot-password", element: <ForgotPassword /> },
+      { path: "*", element: <NotFound /> },
+    ],
+  },
+
+  // 🔒 Sección privada protegida
+  {
+    path: "/dashboard",
+    element: (
+      <ProtectedRoute>
+        <DashboardLayout />
+      </ProtectedRoute>
+    ),
+    children: [
+      { index: true, element: <Dashboard /> },
+      // futuras subrutas del dashboard
     ],
   },
 ]);
