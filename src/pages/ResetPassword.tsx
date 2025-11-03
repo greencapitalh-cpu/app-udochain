@@ -1,10 +1,9 @@
 // =======================================================
-// 🔑 ResetPassword.tsx — versión restaurada idéntica al PDF funcional
+// 🔑 ResetPassword.tsx — versión restaurada y funcional (sin doble encriptación)
 // =======================================================
 import React, { useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import useApi from "../hooks/useApi";
-import crypto from "crypto-js";
 
 export default function ResetPassword() {
   const { token } = useParams<{ token: string }>();
@@ -31,20 +30,20 @@ export default function ResetPassword() {
     setIsError(false);
 
     try {
-      // ⚙️ Cifrado igual al flujo anterior (como cuando funcionaba)
-      const hashedPassword = crypto.MD5(password).toString();
-
+      // ✅ Enviar la contraseña normal, sin MD5 (el backend ya aplica bcrypt)
       const res = await postJson("/api/auth/reset-password", {
         token,
-        newPassword: hashedPassword,
+        newPassword: password,
       });
 
       setMessage(res.message || "✅ Password reset successfully.");
       setIsError(false);
 
+      // 🧹 Limpieza de sesión local
       localStorage.removeItem("token");
       localStorage.removeItem("authFromApp");
 
+      // 🔁 Redirigir a login tras éxito
       setTimeout(() => navigate("/login"), 2500);
     } catch (err: any) {
       console.error("⚠️ Reset password error:", err);
@@ -76,10 +75,11 @@ export default function ResetPassword() {
             onChange={(e) => setPassword(e.target.value)}
             required
           />
+
           <input
             type="password"
             placeholder="Confirm password"
-            className="w-full border border-gray-300 p-3 rounded mb-3 focus:outline-none focus:ring-2 focus:ring-udo-primary"
+            className="w-full border border-gray-300 p-3 rounded mb-5 focus:outline-none focus:ring-2 focus:ring-udo-primary"
             value={confirm}
             onChange={(e) => setConfirm(e.target.value)}
             required
