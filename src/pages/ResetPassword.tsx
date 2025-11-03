@@ -1,5 +1,5 @@
 // =======================================================
-// 🔑 ResetPassword.tsx — versión restaurada funcional y segura
+// 🔑 ResetPassword.tsx — versión ajustada (hash frontend)
 // =======================================================
 import React, { useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
@@ -10,7 +10,6 @@ export default function ResetPassword() {
   const navigate = useNavigate();
   const { postJson } = useApi();
 
-  // ✅ Captura universal del token (ruta o query string)
   const urlToken =
     token || new URLSearchParams(window.location.search).get("token") || "";
 
@@ -34,25 +33,33 @@ export default function ResetPassword() {
     setIsError(false);
 
     try {
-      // 🔧 Sin duplicar /api
+      // 🧩 Encriptar la contraseña antes de enviarla (SHA-256)
+      const encoder = new TextEncoder();
+      const data = encoder.encode(password);
+      const hashBuffer = await crypto.subtle.digest("SHA-256", data);
+      const hashArray = Array.from(new Uint8Array(hashBuffer));
+      const hashedPassword = hashArray
+        .map((b) => b.toString(16).padStart(2, "0"))
+        .join("");
+
+      // 🔧 Enviar el hash en lugar del texto plano
       const res = await postJson("/api/auth/reset-password", {
         token: urlToken,
-        newPassword: password,
+        newPassword: hashedPassword,
       });
 
       setMessage(res.message || "✅ Password reset successfully.");
       setIsError(false);
 
-      // 🧹 Limpieza total del token previo (evita conflicto en login)
       localStorage.removeItem("token");
       localStorage.removeItem("authFromApp");
 
-      // Redirige limpio al login
       setTimeout(() => navigate("/login"), 2500);
     } catch (err: any) {
       console.error("⚠️ Reset password error:", err);
       const msg =
-        err?.message || "⚠️ Error resetting password. Invalid or expired link.";
+        err?.message ||
+        "⚠️ Error resetting password. Invalid or expired link.";
       setMessage(msg);
       setIsError(true);
     } finally {
