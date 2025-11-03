@@ -1,4 +1,4 @@
-// ✅ src/router/index.tsx — versión final estable
+// ✅ src/router/index.tsx — versión final estable y corregida
 import { createBrowserRouter, Navigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 
@@ -26,11 +26,12 @@ import NotFound from "../pages/NotFound";
 import Dashboard from "../pages/Dashboard";
 
 // ===========================================================
-// ✅ ProtectedDashboardRoute — sincronizado con AuthContext
+// ✅ ProtectedDashboardRoute — versión corregida y segura
 // ===========================================================
 function ProtectedDashboardRoute({ children }: { children: JSX.Element }) {
   const { token, loading } = useAuth();
 
+  // Mientras AuthContext carga, mostramos una pantalla neutra
   if (loading) {
     return (
       <div className="min-h-screen grid place-items-center text-udo-steel">
@@ -39,8 +40,16 @@ function ProtectedDashboardRoute({ children }: { children: JSX.Element }) {
     );
   }
 
+  // 🔍 Diagnóstico y control
   const fromApp = localStorage.getItem("authFromApp") === "true";
-  const hasAccess = Boolean(token && fromApp);
+  console.log("🔑 token:", token);
+  console.log("📦 fromApp:", fromApp);
+
+  // ✅ Corrección:
+  // Antes se exigía que fromApp fuera true (token && fromApp),
+  // pero los logins OAuth y recuperaciones no la setean aún.
+  // Solo verificamos token para habilitar el acceso.
+  const hasAccess = Boolean(token);
 
   if (!hasAccess) {
     console.warn("🚫 Redirigido: sesión no válida o externa");
@@ -51,12 +60,12 @@ function ProtectedDashboardRoute({ children }: { children: JSX.Element }) {
 }
 
 // ===========================================================
-// 🔗 Enrutador principal (todo bajo RootLayout → AuthProvider)
+// 🔗 Enrutador principal (RootLayout → AuthProvider incluido)
 // ===========================================================
 const router = createBrowserRouter([
   {
     path: "/",
-    element: <RootLayout />, // <-- AuthProvider vive aquí
+    element: <RootLayout />, // El AuthProvider vive aquí
     children: [
       { index: true, element: <Home /> },
       { path: "login", element: <Login /> },
@@ -85,6 +94,7 @@ const router = createBrowserRouter([
         children: [{ index: true, element: <Dashboard /> }],
       },
 
+      // 🔚 Ruta final
       { path: "*", element: <NotFound /> },
     ],
   },
