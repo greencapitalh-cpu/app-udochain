@@ -1,12 +1,8 @@
-// src/router/index.tsx
-import { createBrowserRouter } from "react-router-dom";
+import { createBrowserRouter, Navigate } from "react-router-dom";
 
 // 🔹 Layouts
 import RootLayout from "../shared/RootLayout";
 import DashboardLayout from "../shared/DashboardLayout";
-
-// 🔹 Protecciones
-import ProtectedRoute from "../shared/ProtectedRoute"; // 👈 nuevo import
 
 // 🔹 Páginas generales
 import Home from "../pages/Home";
@@ -25,12 +21,25 @@ import OAuthSuccess from "../pages/OAuthSuccess";
 import ResetPassword from "../pages/ResetPassword";
 import ForgotPassword from "../pages/ForgotPassword";
 import NotFound from "../pages/NotFound";
-
-// 🔹 Dashboard
 import Dashboard from "../pages/Dashboard";
 
+// 🔒 BLOQUEO LINK (NIVEL ROUTER)
+// -------------------------------------------------------------------
+// Este componente evita que el router renderice Dashboard si el usuario
+// llega directo por URL o sin pasar por una página interna.
+function ProtectedDashboardRoute({ children }: { children: JSX.Element }) {
+  const referrer = document.referrer || "";
+  const sameHost = referrer.includes(window.location.host);
+
+  if (!sameHost) {
+    return <Navigate to="/login" replace />;
+  }
+
+  return children;
+}
+// -------------------------------------------------------------------
+
 const router = createBrowserRouter([
-  // 🟢 Sección pública
   {
     path: "/",
     element: <RootLayout />,
@@ -54,17 +63,16 @@ const router = createBrowserRouter([
     ],
   },
 
-  // 🔒 Sección privada protegida
+  // 🔒 Sección privada (solo accesible desde navegación interna)
   {
     path: "/dashboard",
     element: (
-      <ProtectedRoute>
+      <ProtectedDashboardRoute>
         <DashboardLayout />
-      </ProtectedRoute>
+      </ProtectedDashboardRoute>
     ),
     children: [
       { index: true, element: <Dashboard /> },
-      // futuras subrutas del dashboard
     ],
   },
 ]);
