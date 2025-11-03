@@ -1,4 +1,4 @@
-// src/router/index.tsx
+// ✅ src/router/index.tsx — versión final estable
 import { createBrowserRouter, Navigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 
@@ -6,7 +6,7 @@ import { useAuth } from "../context/AuthContext";
 import RootLayout from "../shared/RootLayout";
 import DashboardLayout from "../shared/DashboardLayout";
 
-// 🔹 Páginas generales
+// 🔹 Páginas
 import Home from "../pages/Home";
 import Login from "../pages/Login";
 import Register from "../pages/Register";
@@ -26,12 +26,7 @@ import NotFound from "../pages/NotFound";
 import Dashboard from "../pages/Dashboard";
 
 // ===========================================================
-// ✅ ProtectedDashboardRoute — versión segura y estable
-// ===========================================================
-// Esta versión no depende de document.referrer, sino del contexto real
-// y de la bandera "authFromApp" almacenada en localStorage.
-// Si el usuario tiene token válido y proviene del flujo interno
-// (login, OAuth, verify o recovery), accede al Dashboard.
+// ✅ ProtectedDashboardRoute — sincronizado con AuthContext
 // ===========================================================
 function ProtectedDashboardRoute({ children }: { children: JSX.Element }) {
   const { token, loading } = useAuth();
@@ -56,12 +51,12 @@ function ProtectedDashboardRoute({ children }: { children: JSX.Element }) {
 }
 
 // ===========================================================
-// 🔗 Definición principal del enrutador
+// 🔗 Enrutador principal (todo bajo RootLayout → AuthProvider)
 // ===========================================================
 const router = createBrowserRouter([
   {
     path: "/",
-    element: <RootLayout />,
+    element: <RootLayout />, // <-- AuthProvider vive aquí
     children: [
       { index: true, element: <Home /> },
       { path: "login", element: <Login /> },
@@ -78,20 +73,19 @@ const router = createBrowserRouter([
       { path: "oauth-success", element: <OAuthSuccess /> },
       { path: "reset-password/:token", element: <ResetPassword /> },
       { path: "forgot-password", element: <ForgotPassword /> },
-      { path: "*", element: <NotFound /> },
-    ],
-  },
 
-  // 🔐 Sección privada protegida por contexto y flag
-  {
-    path: "/dashboard",
-    element: (
-      <ProtectedDashboardRoute>
-        <DashboardLayout />
-      </ProtectedDashboardRoute>
-    ),
-    children: [
-      { index: true, element: <Dashboard /> },
+      // 🔒 Dashboard protegido dentro del mismo contexto
+      {
+        path: "dashboard",
+        element: (
+          <ProtectedDashboardRoute>
+            <DashboardLayout />
+          </ProtectedDashboardRoute>
+        ),
+        children: [{ index: true, element: <Dashboard /> }],
+      },
+
+      { path: "*", element: <NotFound /> },
     ],
   },
 ]);
