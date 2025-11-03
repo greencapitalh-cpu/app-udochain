@@ -1,5 +1,5 @@
 // =======================================================
-// 🔑 ResetPassword.tsx — Versión Opción B (token aleatorio en DB)
+// 🔑 ResetPassword.tsx — Versión final (compatible con /:token y ?token=)
 // =======================================================
 import React, { useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
@@ -9,6 +9,10 @@ export default function ResetPassword() {
   const { token } = useParams<{ token: string }>();
   const navigate = useNavigate();
   const { postJson } = useApi();
+
+  // ✅ Captura universal del token (ruta o query string)
+  const urlToken =
+    token || new URLSearchParams(window.location.search).get("token") || "";
 
   const [password, setPassword] = useState("");
   const [confirm, setConfirm] = useState("");
@@ -31,10 +35,9 @@ export default function ResetPassword() {
 
     try {
       const res = await postJson("/api/auth/reset-password", {
-  token,
-  newPassword: password,
-});
-
+        token: urlToken,
+        newPassword: password,
+      });
 
       setMessage(res.message || "✅ Password reset successfully.");
       setIsError(false);
