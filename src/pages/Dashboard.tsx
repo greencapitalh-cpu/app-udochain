@@ -1,23 +1,24 @@
-// src/pages/Dashboard.tsx
 import { useNavigate } from "react-router-dom";
 import { useEffect } from "react";
 
 export default function Dashboard() {
   const navigate = useNavigate();
 
-  // 🔒 BLOQUEO DE ACCESO DIRECTO POR URL -------------------------------
-  // 👉 Esta sección evita que alguien acceda escribiendo directamente
-  // app.udochain.com/dashboard o desde otro dominio externo.
-  // Para DESACTIVAR el bloqueo, comenta o elimina este bloque useEffect.
+  // 🔒 BLOQUEO LINK (NIVEL COMPONENTE)
+  // ---------------------------------------------------------------
+  // Este useEffect impide acceder directamente a /dashboard escribiendo
+  // la URL o viniendo desde un buscador, otro dominio o redirección externa.
+  // Si detecta que no hay referrer interno, redirige al login.
+  //
+  // ✅ Para DESACTIVAR este bloqueo: comenta todo este bloque useEffect.
   useEffect(() => {
-    const referrer = document.referrer;
+    const referrer = document.referrer || "";
     const sameHost = referrer.includes(window.location.host);
-
     if (!sameHost) {
-      navigate("/login"); // redirige al login si entra directo
+      navigate("/login");
     }
   }, [navigate]);
-  // --------------------------------------------------------------------
+  // ---------------------------------------------------------------
 
   const mainCards = [
     {
@@ -54,39 +55,44 @@ export default function Dashboard() {
   ];
 
   return (
-    <main className="flex-1 container-narrow px-4 py-10">
-      <h1 className="text-3xl font-bold mb-8 text-center text-udo-primary">
-        UDoChain Dashboard
-      </h1>
+    <>
+      {/* 🛑 Evita indexación de buscadores */}
+      <meta name="robots" content="noindex, nofollow" />
 
-      {/* 🔹 Cuadros principales (Validate, Sign, Vote, Trace) */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 mb-10">
-        {mainCards.map(({ title, desc, href }) => (
-          <a
-            key={title}
-            href={href}
-            className="block p-6 border border-slate-200 rounded-2xl shadow-md hover:shadow-lg transition-all hover:-translate-y-1 bg-white"
-          >
-            <h2 className="text-xl font-semibold mb-2 text-udo-primary">
+      <main className="flex-1 container-narrow px-4 py-10">
+        <h1 className="text-3xl font-bold mb-8 text-center text-udo-primary">
+          UDoChain Dashboard
+        </h1>
+
+        {/* 🔹 Cuadros principales (Validate, Sign, Vote, Trace) */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 mb-10">
+          {mainCards.map(({ title, desc, href }) => (
+            <a
+              key={title}
+              href={href}
+              className="block p-6 border border-slate-200 rounded-2xl shadow-md hover:shadow-lg transition-all hover:-translate-y-1 bg-white"
+            >
+              <h2 className="text-xl font-semibold mb-2 text-udo-primary">
+                {title}
+              </h2>
+              <p className="text-sm text-udo-steel leading-snug">{desc}</p>
+            </a>
+          ))}
+        </div>
+
+        {/* 🔹 Cuadros secundarios (Verify evidence, Enroll identity) */}
+        <div className="flex flex-col sm:flex-row justify-center gap-4">
+          {secondaryCards.map(({ title, href }) => (
+            <a
+              key={title}
+              href={href}
+              className="flex-1 p-4 text-center border border-slate-200 rounded-xl shadow-sm hover:shadow-md transition-all bg-white font-medium hover:-translate-y-0.5"
+            >
               {title}
-            </h2>
-            <p className="text-sm text-udo-steel leading-snug">{desc}</p>
-          </a>
-        ))}
-      </div>
-
-      {/* 🔹 Cuadros secundarios (Verify evidence, Enroll identity) */}
-      <div className="flex flex-col sm:flex-row justify-center gap-4">
-        {secondaryCards.map(({ title, href }) => (
-          <a
-            key={title}
-            href={href}
-            className="flex-1 p-4 text-center border border-slate-200 rounded-xl shadow-sm hover:shadow-md transition-all bg-white font-medium hover:-translate-y-0.5"
-          >
-            {title}
-          </a>
-        ))}
-      </div>
-    </main>
+            </a>
+          ))}
+        </div>
+      </main>
+    </>
   );
 }
