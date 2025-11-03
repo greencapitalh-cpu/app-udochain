@@ -6,30 +6,25 @@ export default function Dashboard() {
   const navigate = useNavigate();
   const { token, loading } = useAuth();
 
-  // 🧠 BLOQUEO INTELIGENTE — sincronizado con AuthContext
+  // 🧠 BLOQUEO INTELIGENTE SINCRONIZADO CON AuthContext
   // -----------------------------------------------------------------
-  // Espera hasta que AuthContext deje de estar en "loading".
-  // Luego permite el acceso si:
-  //   ✅ existe token (login manual o persistente)
-  //   ✅ proviene de dominio interno
-  //   ✅ viene desde OAuth (Google / Facebook)
-  //   ✅ incluye token en URL (verificación o recuperación)
+  // Este bloque protege el Dashboard de accesos externos.
+  // Solo permite acceso si:
+  //   ✅ existe un token válido (login normal, Google, Facebook, recovery)
+  //   ✅ Y existe el flag authFromApp en localStorage (viene desde la app)
   //
   // En cualquier otro caso, redirige a /login.
+  //
+  // 📝 Para desactivar temporalmente el bloqueo, comenta este useEffect.
   // -----------------------------------------------------------------
   useEffect(() => {
-    if (loading) return; // ⏳ Espera a que AuthContext termine de cargar
+    if (loading) return; // ⏳ espera AuthContext
 
-    const referrer = document.referrer || "";
-    const sameHost = referrer.includes(window.location.host);
-    const oauthDomains = ["accounts.google.com", "facebook.com"];
-    const fromOAuth = oauthDomains.some((d) => referrer.includes(d));
-    const hasTokenParam = window.location.search.includes("token=");
+    const fromApp = localStorage.getItem("authFromApp") === "true";
+    const hasValidSession = Boolean(token && fromApp);
 
-    const allowed = token || sameHost || fromOAuth || hasTokenParam;
-
-    if (!allowed) {
-      console.warn("🚫 Acceso bloqueado al Dashboard");
+    if (!hasValidSession) {
+      console.warn("🚫 Acceso bloqueado: entrada directa o externa detectada");
       navigate("/login");
     }
   }, [loading, token, navigate]);
