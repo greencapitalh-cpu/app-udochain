@@ -1,5 +1,5 @@
 // =======================================================
-// 🔑 ResetPassword.tsx — Versión final (compatible con /:token y ?token=)
+// 🔑 ResetPassword.tsx — versión estable (sin duplicar /api)
 // =======================================================
 import React, { useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
@@ -34,7 +34,8 @@ export default function ResetPassword() {
     setIsError(false);
 
     try {
-      const res = await postJson("/api/auth/reset-password", {
+      // 🚀 CORRECCIÓN CLAVE — sin duplicar /api
+      const res = await postJson("/auth/reset-password", {
         token: urlToken,
         newPassword: password,
       });
@@ -42,6 +43,7 @@ export default function ResetPassword() {
       setMessage(res.message || "✅ Password reset successfully.");
       setIsError(false);
 
+      // Redirige a login después de 2.5s
       setTimeout(() => navigate("/login"), 2500);
     } catch (err: any) {
       console.error("⚠️ Reset password error:", err);
