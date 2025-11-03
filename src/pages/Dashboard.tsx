@@ -1,20 +1,27 @@
+// ✅ src/pages/Dashboard.tsx
 import { useNavigate } from "react-router-dom";
 import { useEffect } from "react";
 
 export default function Dashboard() {
   const navigate = useNavigate();
 
-  // 🔒 BLOQUEO LINK (NIVEL COMPONENTE)
+  // 🔒 BLOQUEO INTELIGENTE (solo accesos legítimos)
   // ---------------------------------------------------------------
-  // Este useEffect impide acceder directamente a /dashboard escribiendo
-  // la URL o viniendo desde un buscador, otro dominio o redirección externa.
-  // Si detecta que no hay referrer interno, redirige al login.
+  // Este bloque permite ingresar SOLO si:
+  //   ✅ viene desde el mismo dominio (login normal o registro)
+  //   ✅ viene desde Google / Facebook OAuth
+  //   ✅ tiene un token de verificación o recuperación en la URL
+  // En cualquier otro caso, redirige a /login.
   //
-  // ✅ Para DESACTIVAR este bloqueo: comenta todo este bloque useEffect.
+  // 🧠 Para desactivar este filtro temporalmente, comenta este bloque.
   useEffect(() => {
     const referrer = document.referrer || "";
     const sameHost = referrer.includes(window.location.host);
-    if (!sameHost) {
+    const oauthDomains = ["accounts.google.com", "facebook.com"];
+    const fromOAuth = oauthDomains.some((d) => referrer.includes(d));
+    const hasToken = window.location.search.includes("token=");
+
+    if (!sameHost && !fromOAuth && !hasToken) {
       navigate("/login");
     }
   }, [navigate]);
@@ -56,7 +63,7 @@ export default function Dashboard() {
 
   return (
     <>
-      {/* 🛑 Evita indexación de buscadores */}
+      {/* 🚫 Evita indexación de buscadores */}
       <meta name="robots" content="noindex, nofollow" />
 
       <main className="flex-1 container-narrow px-4 py-10">
