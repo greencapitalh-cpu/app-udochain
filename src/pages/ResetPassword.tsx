@@ -1,6 +1,7 @@
 // =======================================================
-// 🔑 ResetPassword.tsx — versión restaurada y funcional (sin doble encriptación)
+// 🔑 ResetPassword.tsx — versión final estable (funcional y segura)
 // =======================================================
+
 import React, { useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import useApi from "../hooks/useApi";
@@ -30,7 +31,7 @@ export default function ResetPassword() {
     setIsError(false);
 
     try {
-      // ✅ Enviar la contraseña normal, sin MD5 (el backend ya aplica bcrypt)
+      // ✅ Enviar la contraseña normal (el backend aplica bcrypt)
       const res = await postJson("/api/auth/reset-password", {
         token,
         newPassword: password,
@@ -47,8 +48,12 @@ export default function ResetPassword() {
       setTimeout(() => navigate("/login"), 2500);
     } catch (err: any) {
       console.error("⚠️ Reset password error:", err);
+
+      // ✅ Restaurado: lee mensaje real del backend
       const msg =
-        err?.message || "⚠️ Error resetting password. Invalid or expired link.";
+        err?.response?.data?.message ||
+        "⚠️ Error resetting password. Invalid or expired link.";
+
       setMessage(msg);
       setIsError(true);
     } finally {
