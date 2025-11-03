@@ -1,4 +1,6 @@
+// src/router/index.tsx
 import { createBrowserRouter, Navigate } from "react-router-dom";
+import { useAuth } from "../context/AuthContext";
 
 // 🔹 Layouts
 import RootLayout from "../shared/RootLayout";
@@ -23,22 +25,39 @@ import ForgotPassword from "../pages/ForgotPassword";
 import NotFound from "../pages/NotFound";
 import Dashboard from "../pages/Dashboard";
 
-// 🔒 BLOQUEO LINK (NIVEL ROUTER)
-// -------------------------------------------------------------------
-// Este componente evita que el router renderice Dashboard si el usuario
-// llega directo por URL o sin pasar por una página interna.
+// ===========================================================
+// ✅ ProtectedDashboardRoute — versión segura y estable
+// ===========================================================
+// Esta versión no depende de document.referrer, sino del contexto real
+// y de la bandera "authFromApp" almacenada en localStorage.
+// Si el usuario tiene token válido y proviene del flujo interno
+// (login, OAuth, verify o recovery), accede al Dashboard.
+// ===========================================================
 function ProtectedDashboardRoute({ children }: { children: JSX.Element }) {
-  const referrer = document.referrer || "";
-  const sameHost = referrer.includes(window.location.host);
+  const { token, loading } = useAuth();
 
-  if (!sameHost) {
+  if (loading) {
+    return (
+      <div className="min-h-screen grid place-items-center text-udo-steel">
+        Checking session…
+      </div>
+    );
+  }
+
+  const fromApp = localStorage.getItem("authFromApp") === "true";
+  const hasAccess = Boolean(token && fromApp);
+
+  if (!hasAccess) {
+    console.warn("🚫 Redirigido: sesión no válida o externa");
     return <Navigate to="/login" replace />;
   }
 
   return children;
 }
-// -------------------------------------------------------------------
 
+// ===========================================================
+// 🔗 Definición principal del enrutador
+// ===========================================================
 const router = createBrowserRouter([
   {
     path: "/",
@@ -63,7 +82,7 @@ const router = createBrowserRouter([
     ],
   },
 
-  // 🔒 Sección privada (solo accesible desde navegación interna)
+  // 🔐 Sección privada protegida por contexto y flag
   {
     path: "/dashboard",
     element: (
