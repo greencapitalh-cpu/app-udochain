@@ -11,15 +11,13 @@ export default function Dashboard() {
   // -----------------------------------------------------------------
   // Permite acceso solo si:
   //   ✅ hay token válido
-  //   ✅ y se activó la bandera "authFromApp" (proviene de login, registro u OAuth)
   // En cualquier otro caso, redirige al login.
   // -----------------------------------------------------------------
   useEffect(() => {
     if (loading) return; // Espera a que AuthContext cargue
-    const fromApp = localStorage.getItem("authFromApp") === "true";
 
-    if (!token || !fromApp) {
-      console.warn("🚫 Acceso bloqueado: sesión inválida o externa");
+    if (!token) {
+      console.warn("🚫 Acceso bloqueado: sesión sin token");
       navigate("/login");
     }
   }, [loading, token, navigate]);
