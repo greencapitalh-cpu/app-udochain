@@ -1,4 +1,4 @@
-// src/pages/Dashboard.tsx
+// ✅ src/pages/Dashboard.tsx — versión estable sin redirección errónea
 import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
@@ -7,43 +7,26 @@ export default function Dashboard() {
   const navigate = useNavigate();
   const { token, loading } = useAuth();
 
-  // 🧠 BLOQUEO FINAL — SINCRONIZADO CON AuthContext
-  // -----------------------------------------------------------------
-  // Permite acceso solo si:
-  //   ✅ hay token válido
-  // En cualquier otro caso, redirige al login.
-  // -----------------------------------------------------------------
+  // 🧠 BLOQUEO FINAL — sincronizado con AuthContext y localStorage
   useEffect(() => {
-    if (loading) return; // Espera a que AuthContext cargue
+    if (loading) return; // Esperar hasta que termine la carga del contexto
 
-    if (!token) {
-      console.warn("🚫 Acceso bloqueado: sesión sin token");
+    // Verificar también el token guardado directamente (por seguridad)
+    const tokenStored = localStorage.getItem("token");
+    const fromApp = localStorage.getItem("authFromApp") === "true";
+
+    if (!tokenStored || !fromApp) {
+      console.warn("🚫 Acceso bloqueado: sesión inválida o externa");
       navigate("/login");
     }
-  }, [loading, token, navigate]);
+  }, [loading, navigate]);
   // -----------------------------------------------------------------
 
   const mainCards = [
-    {
-      title: "Validate",
-      desc: "Verifica la autenticidad de tus documentos o datos.",
-      href: "https://wapp.udochain.com",
-    },
-    {
-      title: "Sign",
-      desc: "Firma documentos electrónicamente y gestiona tus contratos.",
-      href: "https://wapp.udochain.com",
-    },
-    {
-      title: "Vote",
-      desc: "Participa en decisiones votando con identidad validada.",
-      href: "https://wapp.udochain.com",
-    },
-    {
-      title: "Trace",
-      desc: "Rastrea y audita la trazabilidad de tus evidencias.",
-      href: "https://wapp.udochain.com",
-    },
+    { title: "Validate", desc: "Verifica la autenticidad de tus documentos o datos.", href: "https://wapp.udochain.com" },
+    { title: "Sign", desc: "Firma documentos electrónicamente y gestiona tus contratos.", href: "https://wapp.udochain.com" },
+    { title: "Vote", desc: "Participa en decisiones votando con identidad validada.", href: "https://wapp.udochain.com" },
+    { title: "Trace", desc: "Rastrea y audita la trazabilidad de tus evidencias.", href: "https://wapp.udochain.com" },
   ];
 
   const secondaryCards = [
@@ -53,7 +36,6 @@ export default function Dashboard() {
 
   return (
     <>
-      {/* 🚫 Evita indexación por motores de búsqueda */}
       <meta name="robots" content="noindex, nofollow" />
 
       <main className="flex-1 container-narrow px-4 py-10">
