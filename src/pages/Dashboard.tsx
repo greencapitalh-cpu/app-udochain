@@ -1,3 +1,4 @@
+// src/pages/Dashboard.tsx
 import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
@@ -6,25 +7,19 @@ export default function Dashboard() {
   const navigate = useNavigate();
   const { token, loading } = useAuth();
 
-  // 🧠 BLOQUEO INTELIGENTE SINCRONIZADO CON AuthContext
+  // 🧠 BLOQUEO FINAL — SINCRONIZADO CON AuthContext
   // -----------------------------------------------------------------
-  // Este bloque protege el Dashboard de accesos externos.
-  // Solo permite acceso si:
-  //   ✅ existe un token válido (login normal, Google, Facebook, recovery)
-  //   ✅ Y existe el flag authFromApp en localStorage (viene desde la app)
-  //
-  // En cualquier otro caso, redirige a /login.
-  //
-  // 📝 Para desactivar temporalmente el bloqueo, comenta este useEffect.
+  // Permite acceso solo si:
+  //   ✅ hay token válido
+  //   ✅ y se activó la bandera "authFromApp" (proviene de login, registro u OAuth)
+  // En cualquier otro caso, redirige al login.
   // -----------------------------------------------------------------
   useEffect(() => {
-    if (loading) return; // ⏳ espera AuthContext
-
+    if (loading) return; // Espera a que AuthContext cargue
     const fromApp = localStorage.getItem("authFromApp") === "true";
-    const hasValidSession = Boolean(token && fromApp);
 
-    if (!hasValidSession) {
-      console.warn("🚫 Acceso bloqueado: entrada directa o externa detectada");
+    if (!token || !fromApp) {
+      console.warn("🚫 Acceso bloqueado: sesión inválida o externa");
       navigate("/login");
     }
   }, [loading, token, navigate]);
@@ -54,19 +49,13 @@ export default function Dashboard() {
   ];
 
   const secondaryCards = [
-    {
-      title: "Verify evidence",
-      href: "https://wapp.udochain.com",
-    },
-    {
-      title: "Enroll identity",
-      href: "https://wapp.udochain.com",
-    },
+    { title: "Verify evidence", href: "https://wapp.udochain.com" },
+    { title: "Enroll identity", href: "https://wapp.udochain.com" },
   ];
 
   return (
     <>
-      {/* 🚫 Evita indexación de buscadores */}
+      {/* 🚫 Evita indexación por motores de búsqueda */}
       <meta name="robots" content="noindex, nofollow" />
 
       <main className="flex-1 container-narrow px-4 py-10">
@@ -82,9 +71,7 @@ export default function Dashboard() {
               href={href}
               className="block p-6 border border-slate-200 rounded-2xl shadow-md hover:shadow-lg transition-all hover:-translate-y-1 bg-white"
             >
-              <h2 className="text-xl font-semibold mb-2 text-udo-primary">
-                {title}
-              </h2>
+              <h2 className="text-xl font-semibold mb-2 text-udo-primary">{title}</h2>
               <p className="text-sm text-udo-steel leading-snug">{desc}</p>
             </a>
           ))}
