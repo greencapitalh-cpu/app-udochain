@@ -1,4 +1,3 @@
-// app-udochain/src/context/AuthContext.tsx
 import {
   createContext,
   useContext,
@@ -11,8 +10,8 @@ import useApi from "../hooks/useApi";
 
 type User = {
   _id?: string;
-  username?: string;   // ✅ nuevo
-  name?: string;       // se llenará en biometría base
+  username?: string; // ✅ nuevo
+  name?: string;
   email?: string;
   credits?: number;
   biometricReady?: boolean;
@@ -50,6 +49,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         setUser(me || null);
       } catch {
         localStorage.removeItem("token");
+        localStorage.removeItem("authFromApp"); // 🧹 limpia bandera en error
         setToken(null);
         setUser(null);
       } finally {
@@ -58,14 +58,18 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     })();
   }, [token]); // eslint-disable-line
 
+  // ✅ LOGIN: guarda token + bandera de acceso legítimo
   const login = (t: string, u?: User | null) => {
     localStorage.setItem("token", t);
+    localStorage.setItem("authFromApp", "true"); // 🟢 marca que viene del login, registro u OAuth
     setToken(t);
     if (u) setUser(u);
   };
 
+  // ✅ LOGOUT: limpia todo
   const logout = () => {
     localStorage.removeItem("token");
+    localStorage.removeItem("authFromApp");
     setToken(null);
     setUser(null);
   };
