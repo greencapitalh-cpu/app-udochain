@@ -1,8 +1,23 @@
 // src/pages/Dashboard.tsx
 import { useNavigate } from "react-router-dom";
+import { useEffect } from "react";
 
 export default function Dashboard() {
   const navigate = useNavigate();
+
+  // 🔒 BLOQUEO DE ACCESO DIRECTO POR URL -------------------------------
+  // 👉 Esta sección evita que alguien acceda escribiendo directamente
+  // app.udochain.com/dashboard o desde otro dominio externo.
+  // Para DESACTIVAR el bloqueo, comenta o elimina este bloque useEffect.
+  useEffect(() => {
+    const referrer = document.referrer;
+    const sameHost = referrer.includes(window.location.host);
+
+    if (!sameHost) {
+      navigate("/login"); // redirige al login si entra directo
+    }
+  }, [navigate]);
+  // --------------------------------------------------------------------
 
   const mainCards = [
     {
