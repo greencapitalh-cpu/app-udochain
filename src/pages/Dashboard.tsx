@@ -5,27 +5,36 @@ import { useEffect } from "react";
 export default function Dashboard() {
   const navigate = useNavigate();
 
-  // 🔒 BLOQUEO INTELIGENTE (solo accesos legítimos)
-  // ---------------------------------------------------------------
-  // Este bloque permite ingresar SOLO si:
-  //   ✅ viene desde el mismo dominio (login normal o registro)
-  //   ✅ viene desde Google / Facebook OAuth
-  //   ✅ tiene un token de verificación o recuperación en la URL
-  // En cualquier otro caso, redirige a /login.
+  // 🔒 BLOQUEO INTELIGENTE — ACCESOS LEGÍTIMOS SOLAMENTE
+  // -----------------------------------------------------------------
+  // Este bloque impide que el Dashboard se abra si el usuario entra
+  // escribiendo directamente la URL o desde un buscador o dominio externo.
+  // Solo se permite el acceso cuando:
+  //   ✅ Viene desde el mismo dominio (login / registro interno)
+  //   ✅ Viene desde Google o Facebook (OAuth)
+  //   ✅ Tiene token válido en URL (verificación / recuperación)
+  //   ✅ Tiene token en localStorage (ya autenticado)
+  //   ✅ Se marcó flag interno de autenticación en sessionStorage
   //
-  // 🧠 Para desactivar este filtro temporalmente, comenta este bloque.
+  // 🧠 Si querés DESACTIVAR el bloqueo, comentá este useEffect completo.
   useEffect(() => {
+    const token = localStorage.getItem("token") || "";
     const referrer = document.referrer || "";
     const sameHost = referrer.includes(window.location.host);
     const oauthDomains = ["accounts.google.com", "facebook.com"];
     const fromOAuth = oauthDomains.some((d) => referrer.includes(d));
-    const hasToken = window.location.search.includes("token=");
+    const hasTokenParam = window.location.search.includes("token=");
+    const cameFromApp = sessionStorage.getItem("authFromApp") === "true";
 
-    if (!sameHost && !fromOAuth && !hasToken) {
+    const allowed =
+      token || sameHost || fromOAuth || hasTokenParam || cameFromApp;
+
+    if (!allowed) {
+      console.warn("⛔ Acceso bloqueado a /dashboard (no autorizado)");
       navigate("/login");
     }
   }, [navigate]);
-  // ---------------------------------------------------------------
+  // -----------------------------------------------------------------
 
   const mainCards = [
     {
