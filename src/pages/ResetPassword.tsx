@@ -35,7 +35,7 @@ export default function ResetPassword() {
 
     try {
       // 🔧 Sin duplicar /api
-      const res = await postJson("/api/auth/reset-password", {
+      const res = await postJson("/auth/reset-password", {
         token: urlToken,
         newPassword: password,
       });
