@@ -1,39 +1,38 @@
-// ✅ src/pages/Dashboard.tsx
-import { useNavigate } from "react-router-dom";
 import { useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import { useAuth } from "../context/AuthContext";
 
 export default function Dashboard() {
   const navigate = useNavigate();
+  const { token, loading } = useAuth();
 
-  // 🔒 BLOQUEO INTELIGENTE — ACCESOS LEGÍTIMOS SOLAMENTE
+  // 🧠 BLOQUEO INTELIGENTE — sincronizado con AuthContext
   // -----------------------------------------------------------------
-  // Este bloque impide que el Dashboard se abra si el usuario entra
-  // escribiendo directamente la URL o desde un buscador o dominio externo.
-  // Solo se permite el acceso cuando:
-  //   ✅ Viene desde el mismo dominio (login / registro interno)
-  //   ✅ Viene desde Google o Facebook (OAuth)
-  //   ✅ Tiene token válido en URL (verificación / recuperación)
-  //   ✅ Tiene token en localStorage (ya autenticado)
-  //   ✅ Se marcó flag interno de autenticación en sessionStorage
+  // Espera hasta que AuthContext deje de estar en "loading".
+  // Luego permite el acceso si:
+  //   ✅ existe token (login manual o persistente)
+  //   ✅ proviene de dominio interno
+  //   ✅ viene desde OAuth (Google / Facebook)
+  //   ✅ incluye token en URL (verificación o recuperación)
   //
-  // 🧠 Si querés DESACTIVAR el bloqueo, comentá este useEffect completo.
+  // En cualquier otro caso, redirige a /login.
+  // -----------------------------------------------------------------
   useEffect(() => {
-    const token = localStorage.getItem("token") || "";
+    if (loading) return; // ⏳ Espera a que AuthContext termine de cargar
+
     const referrer = document.referrer || "";
     const sameHost = referrer.includes(window.location.host);
     const oauthDomains = ["accounts.google.com", "facebook.com"];
     const fromOAuth = oauthDomains.some((d) => referrer.includes(d));
     const hasTokenParam = window.location.search.includes("token=");
-    const cameFromApp = sessionStorage.getItem("authFromApp") === "true";
 
-    const allowed =
-      token || sameHost || fromOAuth || hasTokenParam || cameFromApp;
+    const allowed = token || sameHost || fromOAuth || hasTokenParam;
 
     if (!allowed) {
-      console.warn("⛔ Acceso bloqueado a /dashboard (no autorizado)");
+      console.warn("🚫 Acceso bloqueado al Dashboard");
       navigate("/login");
     }
-  }, [navigate]);
+  }, [loading, token, navigate]);
   // -----------------------------------------------------------------
 
   const mainCards = [
