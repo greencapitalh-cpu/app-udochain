@@ -11,7 +11,7 @@ function Gate() {
       <div className="min-h-screen grid place-items-center">
         <div className="animate-pulse text-udo-steel">Loading…</div>
       </div>
-    );
+    );	
   }
   return (
     <div className="min-h-screen flex flex-col">
