@@ -1,4 +1,4 @@
-// ✅ src/context/AuthContext.tsx — versión estable y accesible (registro sin interferencias, 5 reintentos)
+// ✅ AuthContext.tsx — versión estable (registro funcional + 5 reintentos + dashboard protegido)
 import {
   createContext,
   useContext,
@@ -7,6 +7,7 @@ import {
   useState,
   ReactNode,
 } from "react";
+import { useLocation } from "react-router-dom";
 import useApi from "../hooks/useApi";
 
 type User = {
@@ -32,6 +33,7 @@ type AuthContextType = {
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export function AuthProvider({ children }: { children: ReactNode }) {
+  const location = useLocation();
   const [token, setToken] = useState<string | null>(
     () => localStorage.getItem("token")
   );
@@ -39,40 +41,44 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [loading, setLoading] = useState<boolean>(true);
   const { get } = useApi();
 
-  // 🧠 Verificar sesión con hasta 5 intentos y retraso preventivo para no interferir en /register
+  // 🧩 Control inteligente de sesión (no interfiere con /register o /login)
   useEffect(() => {
     const fetchUser = async () => {
+      // Evitar validación durante login o registro
+      if (
+        location.pathname.startsWith("/register") ||
+        location.pathname.startsWith("/login")
+      ) {
+        setLoading(false);
+        return;
+      }
+
       if (!token) {
         setUser(null);
         setLoading(false);
         return;
       }
 
-      // ⚡ Espera breve para no chocar con el flujo de registro (soluciona "Server error")
-      await new Promise((r) => setTimeout(r, 500));
-
       try {
         const me = await get<User>("/api/auth/me");
         if (me) {
           setUser(me);
-          localStorage.removeItem("authRetries"); // ✅ sesión válida, limpiar contadores
+          localStorage.removeItem("authRetries");
         } else {
           throw new Error("Invalid session");
         }
       } catch (err) {
-        console.warn("⚠️ AuthContext: sesión inválida o error de conexión", err);
+        console.warn("⚠️ Sesión inválida o error de conexión:", err);
         const retries = Number(localStorage.getItem("authRetries") || "0");
 
         if (retries >= 4) {
-          // 👋 Después del 5.º intento fallido, limpiar token y forzar logout
-          console.error("🔒 Token removido tras 5 intentos fallidos");
+          console.error("🔒 Token eliminado tras 5 intentos fallidos");
           localStorage.removeItem("token");
           localStorage.removeItem("authFromApp");
           localStorage.removeItem("authRetries");
           setToken(null);
           setUser(null);
         } else {
-          // ⏳ Aumentar el contador y mantener sesión viva temporalmente
           localStorage.setItem("authRetries", String(retries + 1));
         }
       } finally {
@@ -81,18 +87,18 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     };
 
     fetchUser();
-  }, [token]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [token, location.pathname]); // ⚡ escucha ruta y token
 
-  // ✅ LOGIN — Guarda token y bandera de acceso
+  // ✅ LOGIN — Guarda token y limpia contadores
   const login = (t: string, u?: User | null) => {
     localStorage.setItem("token", t);
     localStorage.setItem("authFromApp", "true");
-    localStorage.removeItem("authRetries"); // Reiniciar contador en login correcto
+    localStorage.removeItem("authRetries");
     setToken(t);
     if (u) setUser(u);
   };
 
-  // ✅ LOGOUT — Limpieza completa manual
+  // ✅ LOGOUT — Limpieza completa
   const logout = () => {
     localStorage.removeItem("token");
     localStorage.removeItem("authFromApp");
