@@ -1,4 +1,4 @@
-// ✅ AuthContext.tsx — versión estable (registro funcional + 5 reintentos + dashboard protegido)
+// ✅ src/context/AuthContext.tsx — versión estable y accesible (registro funcional + login persistente)
 import {
   createContext,
   useContext,
@@ -7,7 +7,6 @@ import {
   useState,
   ReactNode,
 } from "react";
-import { useLocation } from "react-router-dom";
 import useApi from "../hooks/useApi";
 
 type User = {
@@ -33,76 +32,50 @@ type AuthContextType = {
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export function AuthProvider({ children }: { children: ReactNode }) {
-  const location = useLocation();
-  const [token, setToken] = useState<string | null>(
-    () => localStorage.getItem("token")
-  );
+  const [token, setToken] = useState<string | null>(() => localStorage.getItem("token"));
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
   const { get } = useApi();
 
-  // 🧩 Control inteligente de sesión (no interfiere con /register o /login)
+  // ✅ Verificar sesión activa solo después de tener token
   useEffect(() => {
-    const fetchUser = async () => {
-      // Evitar validación durante login o registro
-      if (
-        location.pathname.startsWith("/register") ||
-        location.pathname.startsWith("/login")
-      ) {
-        setLoading(false);
-        return;
-      }
+    if (!token) {
+      setUser(null);
+      setLoading(false);
+      return;
+    }
 
-      if (!token) {
-        setUser(null);
-        setLoading(false);
-        return;
-      }
-
+    (async () => {
       try {
         const me = await get<User>("/api/auth/me");
         if (me) {
           setUser(me);
-          localStorage.removeItem("authRetries");
-        } else {
-          throw new Error("Invalid session");
+          localStorage.setItem("authFromApp", "true");
         }
       } catch (err) {
-        console.warn("⚠️ Sesión inválida o error de conexión:", err);
-        const retries = Number(localStorage.getItem("authRetries") || "0");
-
-        if (retries >= 4) {
-          console.error("🔒 Token eliminado tras 5 intentos fallidos");
-          localStorage.removeItem("token");
-          localStorage.removeItem("authFromApp");
-          localStorage.removeItem("authRetries");
-          setToken(null);
-          setUser(null);
-        } else {
-          localStorage.setItem("authRetries", String(retries + 1));
-        }
+        console.warn("⚠️ Sesión inválida, limpiando token...");
+        localStorage.removeItem("token");
+        localStorage.removeItem("authFromApp");
+        setToken(null);
+        setUser(null);
       } finally {
         setLoading(false);
       }
-    };
+    })();
+  }, [token]); // eslint-disable-line react-hooks/exhaustive-deps
 
-    fetchUser();
-  }, [token, location.pathname]); // ⚡ escucha ruta y token
-
-  // ✅ LOGIN — Guarda token y limpia contadores
+  // ✅ LOGIN — guarda token y bandera
   const login = (t: string, u?: User | null) => {
     localStorage.setItem("token", t);
     localStorage.setItem("authFromApp", "true");
-    localStorage.removeItem("authRetries");
     setToken(t);
     if (u) setUser(u);
   };
 
-  // ✅ LOGOUT — Limpieza completa
+  // ✅ LOGOUT — limpieza completa
   const logout = () => {
     localStorage.removeItem("token");
     localStorage.removeItem("authFromApp");
-    localStorage.removeItem("authRetries");
     setToken(null);
     setUser(null);
   };
