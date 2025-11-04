@@ -1,4 +1,4 @@
-// ✅ src/context/AuthContext.tsx — versión accesible (5 reintentos, login estable)
+// ✅ src/context/AuthContext.tsx — versión estable y accesible (registro sin interferencias, 5 reintentos)
 import {
   createContext,
   useContext,
@@ -39,7 +39,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [loading, setLoading] = useState<boolean>(true);
   const { get } = useApi();
 
-  // 🧩 Validar sesión con hasta 5 intentos antes de forzar logout
+  // 🧠 Verificar sesión con hasta 5 intentos y retraso preventivo para no interferir en /register
   useEffect(() => {
     const fetchUser = async () => {
       if (!token) {
@@ -47,6 +47,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         setLoading(false);
         return;
       }
+
+      // ⚡ Espera breve para no chocar con el flujo de registro (soluciona "Server error")
+      await new Promise((r) => setTimeout(r, 500));
 
       try {
         const me = await get<User>("/api/auth/me");
@@ -61,7 +64,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         const retries = Number(localStorage.getItem("authRetries") || "0");
 
         if (retries >= 4) {
-          // 👋 Después del 5.º intento fallido, limpiar token
+          // 👋 Después del 5.º intento fallido, limpiar token y forzar logout
           console.error("🔒 Token removido tras 5 intentos fallidos");
           localStorage.removeItem("token");
           localStorage.removeItem("authFromApp");
@@ -69,7 +72,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           setToken(null);
           setUser(null);
         } else {
-          // ⏳ Aumentar el contador y mantener sesión viva por ahora
+          // ⏳ Aumentar el contador y mantener sesión viva temporalmente
           localStorage.setItem("authRetries", String(retries + 1));
         }
       } finally {
