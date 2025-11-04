@@ -1,4 +1,4 @@
-// ✅ src/context/AuthContext.tsx — versión final estable y persistente
+// ✅ src/context/AuthContext.tsx — versión accesible (5 reintentos, login estable)
 import {
   createContext,
   useContext,
@@ -39,7 +39,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [loading, setLoading] = useState<boolean>(true);
   const { get } = useApi();
 
-  // 🧩 Carga de sesión persistente
+  // 🧩 Validar sesión con hasta 5 intentos antes de forzar logout
   useEffect(() => {
     const fetchUser = async () => {
       if (!token) {
@@ -50,19 +50,26 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
       try {
         const me = await get<User>("/api/auth/me");
-        if (me) setUser(me);
-        else throw new Error("Invalid session");
+        if (me) {
+          setUser(me);
+          localStorage.removeItem("authRetries"); // ✅ sesión válida, limpiar contadores
+        } else {
+          throw new Error("Invalid session");
+        }
       } catch (err) {
-        console.warn("⚠️ AuthContext: sesión inválida o expirada", err);
-        // ❗ No limpiar token inmediatamente: esperar 1 retry antes de forzar logout
+        console.warn("⚠️ AuthContext: sesión inválida o error de conexión", err);
         const retries = Number(localStorage.getItem("authRetries") || "0");
-        if (retries >= 1) {
+
+        if (retries >= 4) {
+          // 👋 Después del 5.º intento fallido, limpiar token
+          console.error("🔒 Token removido tras 5 intentos fallidos");
           localStorage.removeItem("token");
           localStorage.removeItem("authFromApp");
           localStorage.removeItem("authRetries");
           setToken(null);
           setUser(null);
         } else {
+          // ⏳ Aumentar el contador y mantener sesión viva por ahora
           localStorage.setItem("authRetries", String(retries + 1));
         }
       } finally {
@@ -77,12 +84,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const login = (t: string, u?: User | null) => {
     localStorage.setItem("token", t);
     localStorage.setItem("authFromApp", "true");
-    localStorage.removeItem("authRetries");
+    localStorage.removeItem("authRetries"); // Reiniciar contador en login correcto
     setToken(t);
     if (u) setUser(u);
   };
 
-  // ✅ LOGOUT — Limpieza completa
+  // ✅ LOGOUT — Limpieza completa manual
   const logout = () => {
     localStorage.removeItem("token");
     localStorage.removeItem("authFromApp");
