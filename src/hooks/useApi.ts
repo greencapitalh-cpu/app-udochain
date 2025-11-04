@@ -1,18 +1,16 @@
-// [36] src/hooks/useApi.ts — versión segura y universal
+// [36] src/hooks/useApi.ts
 type Json = Record<string, any>;
 
 export default function useApi() {
+  // 🔧 Ajuste PMDSU — base URL sin /api
   const base =
     (import.meta.env.VITE_API_URL as string) ||
     "https://api.udochain.com";
 
-  // 🧩 Siempre asegura un solo slash entre base y path
-  const url = (path: string) => {
-    if (path.startsWith("http")) return path;
-    const cleanBase = base.replace(/\/+$/, ""); // quita barras al final
-    const cleanPath = path.replace(/^\/+/, ""); // quita barras al inicio
-    return `${cleanBase}/${cleanPath}`;         // une con una sola barra
-  };
+  const url = (path: string) =>
+    path.startsWith("http")
+      ? path
+      : `${base.replace(/\/$/, "")}${path.startsWith("/") ? "" : "/"}${path}`;
 
   const handle = async <T = any>(res: Response): Promise<T> => {
     const text = await res.text();
