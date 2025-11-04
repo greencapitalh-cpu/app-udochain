@@ -1,7 +1,6 @@
 // =======================================================
-// 🔑 ResetPassword.tsx — versión final estable (funcional y segura)
+// 🔑 ResetPassword.tsx — Versión Opción B (token aleatorio en DB)
 // =======================================================
-
 import React, { useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import useApi from "../hooks/useApi";
@@ -31,29 +30,21 @@ export default function ResetPassword() {
     setIsError(false);
 
     try {
-      // ✅ Enviar la contraseña normal (el backend aplica bcrypt)
       const res = await postJson("/api/auth/reset-password", {
-        token,
-        newPassword: password,
-      });
+  token,
+  newPassword: password,
+});
+
 
       setMessage(res.message || "✅ Password reset successfully.");
       setIsError(false);
 
-      // 🧹 Limpieza de sesión local
-      localStorage.removeItem("token");
-      localStorage.removeItem("authFromApp");
-
-      // 🔁 Redirigir a login tras éxito
       setTimeout(() => navigate("/login"), 2500);
     } catch (err: any) {
       console.error("⚠️ Reset password error:", err);
-
-      // ✅ Restaurado: lee mensaje real del backend
       const msg =
         err?.response?.data?.message ||
         "⚠️ Error resetting password. Invalid or expired link.";
-
       setMessage(msg);
       setIsError(true);
     } finally {
@@ -80,11 +71,10 @@ export default function ResetPassword() {
             onChange={(e) => setPassword(e.target.value)}
             required
           />
-
           <input
             type="password"
             placeholder="Confirm password"
-            className="w-full border border-gray-300 p-3 rounded mb-5 focus:outline-none focus:ring-2 focus:ring-udo-primary"
+            className="w-full border border-gray-300 p-3 rounded mb-3 focus:outline-none focus:ring-2 focus:ring-udo-primary"
             value={confirm}
             onChange={(e) => setConfirm(e.target.value)}
             required
