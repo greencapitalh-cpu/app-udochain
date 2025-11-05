@@ -1,37 +1,9 @@
-// ✅ src/pages/Dashboard.tsx — versión con fondo dinámico + logo y frase sobre la imagen
+// ✅ src/pages/Dashboard.tsx — versión simplificada con fondo dinámico y único botón “Dashboard”
 import logoBlanco from "../assets/logoblanco.png";
 import bgDesktop from "../assets/background-dashboard-desktop.jpg";
 import bgMobile from "../assets/background-dashboard-mobile.jpg";
 
 export default function Dashboard() {
-  const mainCards = [
-    {
-      title: "Validate",
-      desc: "Verifica la autenticidad de tus documentos o datos.",
-      href: "https://wapp.udochain.com",
-    },
-    {
-      title: "Sign",
-      desc: "Firma documentos electrónicamente y gestiona tus contratos.",
-      href: "https://wapp.udochain.com",
-    },
-    {
-      title: "Vote",
-      desc: "Participa en decisiones votando con identidad validada.",
-      href: "https://wapp.udochain.com",
-    },
-    {
-      title: "Trace",
-      desc: "Rastrea y audita la trazabilidad de tus evidencias.",
-      href: "https://wapp.udochain.com",
-    },
-  ];
-
-  const secondaryCards = [
-    { title: "Verify evidence", href: "https://wapp.udochain.com" },
-    { title: "Enroll identity", href: "https://wapp.udochain.com" },
-  ];
-
   // Determina el fondo según el tamaño de pantalla
   const backgroundImage =
     typeof window !== "undefined" && window.innerWidth > 768
@@ -64,40 +36,16 @@ export default function Dashboard() {
         </div>
       </section>
 
-      {/* 🔹 Contenido del dashboard */}
-      <main className="flex-1 container-narrow px-4 py-10">
-        <h2 className="text-2xl font-bold mb-8 text-center text-udo-primary">
-          Panel principal
-        </h2>
-
-        {/* Cuadros principales */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 mb-10">
-          {mainCards.map(({ title, desc, href }) => (
-            <a
-              key={title}
-              href={href}
-              className="block p-6 border border-slate-200 rounded-2xl shadow-md hover:shadow-lg transition-all hover:-translate-y-1 bg-white"
-            >
-              <h3 className="text-xl font-semibold mb-2 text-udo-primary">
-                {title}
-              </h3>
-              <p className="text-sm text-udo-steel leading-snug">{desc}</p>
-            </a>
-          ))}
-        </div>
-
-        {/* Cuadros secundarios */}
-        <div className="flex flex-col sm:flex-row justify-center gap-4">
-          {secondaryCards.map(({ title, href }) => (
-            <a
-              key={title}
-              href={href}
-              className="flex-1 p-4 text-center border border-slate-200 rounded-xl shadow-sm hover:shadow-md transition-all bg-white font-medium hover:-translate-y-0.5"
-            >
-              {title}
-            </a>
-          ))}
-        </div>
+      {/* 🔹 Botón único “Dashboard” */}
+      <main className="flex-1 container-narrow px-4 py-16 flex flex-col items-center justify-center">
+        <a
+          href="https://wapp.udochain.com"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="block w-full sm:w-1/2 text-center p-6 border border-slate-200 rounded-2xl shadow-md hover:shadow-lg transition-all hover:-translate-y-1 bg-white font-semibold text-udo-primary text-xl"
+        >
+          Dashboard
+        </a>
       </main>
     </>
   );
