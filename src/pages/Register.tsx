@@ -32,7 +32,7 @@ export default function Register() {
     setMessage(null);
 
     if (!isValidUsername(username)) {
-      setError("Username must include at least 8 alphanumeric characters (A–Z, a–z, 0–9).");
+      setError("Username must have exactly 8 alphanumeric characters (A–Z, a–z, 0–9).");
       return;
     }
     if (!isStrongPassword(password)) {
