@@ -1,0 +1,26 @@
+const submit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setBusy(true);
+    setError(null);
+    try {
+      // 🔹 Autenticación normal contra el backend
+      const data = await postJson<{ token: string; user?: any }>("/api/auth/login", {
+        email,
+        password,
+      });
+
+      // 🔹 Guarda el token y datos del usuario
+      login(data.token, data.user || null);
+
+      // 🔒 Redirección segura a WAPP (multidominio)
+      // 1️⃣ Opción recomendada: ir directamente a wapp.udochain.com con el token en la URL
+      window.location.href = `https://wapp.udochain.com?token=${encodeURIComponent(data.token)}`;
+
+      // 2️⃣ Alternativa si querés seguir mostrando el dashboard interno antes:
+      // navigate(`/dashboard?token=${data.token}`);
+    } catch (err: any) {
+      setError(err?.message || "Login failed");
+    } finally {
+      setBusy(false);
+    }
+  };
