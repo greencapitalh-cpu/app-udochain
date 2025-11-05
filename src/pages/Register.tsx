@@ -51,7 +51,7 @@ export default function Register() {
       if (reg?.next === "verify_email") {
         setMessage("Registration successful. Check your email to confirm your account before signing in.");
       } else {
-        setMessage("Account created successfully.");
+        setMessage("Account created successfully. Check your email to confirm your account before signing in.");
       }
     } catch (err: any) {
       setError(err?.message || "Registration failed");
